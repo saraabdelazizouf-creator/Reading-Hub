@@ -825,6 +825,261 @@ const AR = {
   ]}
 };
 
+
+/* =========================================================
+   ➕ المرحلة الأولى من المحتوى الإضافي
+   (بتتضاف تلقائيًا في آخر قوائم كل صف — المستويات الجديدة بتتفتح بالترتيب)
+   ========================================================= */
+const PHASE1 = {
+  KG3: {
+    stories: [
+      { t:"Sam Can Run", sc:["🧒","🏃","⛰️","😅"], text:["Sam is a kid.","Sam can run.","Sam can hop.","Sam can jog to the top.","Sam is hot.","Sam can rest on a mat."] },
+      { t:"The Pig in the Mud", sc:["🐷","🟫","💦","😄"], text:["Look at the pig.","The pig is pink.","The pig is in the mud.","The pig can roll and dig.","The pig is a big mess!","The pig is glad."] },
+      { t:"Ten Red Hats", sc:["📦","🎩","👨","👩"], text:["Dad has a box.","In the box are ten hats.","The hats are red.","I get a hat.","Mom gets a hat.","We all have red hats!"] },
+      { t:"The Bug on the Rug", sc:["🐞","🟥","🐱","☀️"], text:["A bug is on the rug.","The bug is tan.","The bug can sit.","The bug can hum.","The cat sees the bug.","The bug runs to the sun!"] },
+      { t:"Ned and the Jet", sc:["✈️","👦","☀️","🎒"], text:["Ned has a jet.","The jet is red.","The jet can zip up.","The jet can zip in the sun.","Ned can set the jet in his bag.","Ned has fun with his jet."] },
+      { t:"The Cat and the Dog Nap", sc:["🐱","🛏️","🐶","💤"], text:["The fat cat is on a bed.","The cat naps and naps.","A dog sits by the bed.","The dog can yap.","The cat gets up.","The cat and the dog nap!"] }
+    ],
+    comp: [
+      { t:"The Sun", sc:["☀️","🧢","🥤"], text:"The sun is up. It is hot. I can sit in the sun. I can run in the sun. I have a hat and a cup.",
+        q:[ {q:"What is up?", o:["the moon","the sun","the bus"], a:1},
+            {q:"What can I do in the sun?", o:["run","swim in a tub","nap in bed"], a:0},
+            {q:"What do I have?", o:["a dog","a box","a hat and a cup"], a:2} ] },
+      { t:"Dan and the Van", sc:["🚐","👨","🧒"], text:"Dan has a van. The van is tan. Dan can fit six kids in the van. The kids sing in the van. Dan is a fun dad.",
+        q:[ {q:"What does Dan have?", o:["a bus","a van","a jet"], a:1},
+            {q:"What color is the van?", o:["red","pink","tan"], a:2},
+            {q:"How many kids fit in the van?", o:["six","ten","one"], a:0} ] }
+    ],
+    sight: ["are","was","here","come","has","do","they","of","what","with","this","play","put","where","one","two"],
+    hfw: ["bus","hat","map","pen","ten","web","bat","cup","fox","leg","mat","nap","net","pot","rug","wet"]
+  },
+  G1: {
+    stories: [
+      { t:"The Thin Cat and the Thick Dog", sc:["🐱","🐶","🏚️","⚽"], text:["Seth has a thin cat.","Beth has a thick dog.","The thin cat and the thick dog play.","They chase a ball in the shed.","Then they rest on a mat.","The cat and the dog are best pals."] },
+      { t:"Chips for Lunch", sc:["🍟","🐟","👦","👩"], text:["Mom and Rich go to the shop.","They get fish and chips for lunch.","Rich has a bag of chips.","He munches and crunches.","Then he gives some to Mom.","Mom says, Thank you, Rich!"] },
+      { t:"Bath Time", sc:["🛁","🫧","🦆","🧒"], text:["Tim has a bath.","The bath has lots of bubbles.","Tim splashes and splashes.","The duck in the bath gets wet.","Then Tim gets out and dries off.","Tim is fresh and clean."] },
+      { t:"Shep the Ship Dog", sc:["🐕","🚢","🐟","🌙"], text:["Shep is a dog on a ship.","He sits on the deck in the sun.","When the ship rocks, Shep hangs on.","He sees fish jump in the sea.","At night, Shep naps in a box.","Shep is a happy ship dog."] },
+      { t:"Fun at the Pond", sc:["🎣","🐟","🐸","🏡"], text:["Jack and Jill went to the pond.","They had a net and a jar.","Jack got a fish in his net.","Jill got a frog in her jar.","They let them go back in the pond.","Then they ran back home for lunch."] },
+      { t:"The Lunch Bell", sc:["🔔","🥪","👦","🏫"], text:["Ding! The lunch bell rang.","Chad got his lunch box.","In the box was an egg, a plum, and a bun.","Chad sat with Ted and Meg.","They had lunch and chatted.","Then the bell rang, and they went back to class."] }
+    ],
+    comp: [
+      { t:"The Red Ship", sc:["⛵","🛁","👦"], text:"Mitch has a red ship. He sets the ship in the bath. Splash! The ship tips. Mitch gets the ship. He puts it back on top of the water. The ship is fine.",
+        q:[ {q:"What color is the ship?", o:["blue","red","black"], a:1},
+            {q:"Where does Mitch set the ship?", o:["in the bath","on the bed","in a box"], a:0},
+            {q:"What does the ship do?", o:["It runs.","It hops.","It tips."], a:2} ] },
+      { t:"Beth Helps Dad", sc:["🚐","🪣","👧"], text:"Beth helps Dad wash the van. Dad gets a bucket. Beth gets a brush. They rub and scrub. The van gets wet, and so does Beth! Dad and Beth laugh.",
+        q:[ {q:"What do they wash?", o:["the van","the dog","the shed"], a:0},
+            {q:"What does Beth get?", o:["a cup","a brush","a hat"], a:1},
+            {q:"Who gets wet?", o:["the cat","Mom","Beth"], a:2} ] }
+    ],
+    sight: ["look","make","play","good","down","funny","jump","away","blue","yellow","find","three","ran","ride","saw","want"],
+    hfw: ["fish","ship","shop","chip","chat","thin","thick","bath","math","such","shell","shut","check","lunch","rich","wish"]
+  },
+  G2: {
+    stories: [
+      { t:"The Pine Cone", sc:["🌲","👦","🧙","🏠"], text:["Mike found a pine cone in the park.","It was brown and had a nice shape.","He made it into a little gnome.","He gave it a hat and a smile.","He put it on a shelf at home.","Now Mike likes to hunt for cones on every hike."] },
+      { t:"Hope the Mole", sc:["🐹","🕳️","💎","🌙"], text:["Hope the mole lives in a hole.","She likes to dig and poke her nose out.","One day, she spotted a blue stone.","It had a glow like the moon.","Hope rolled the stone home.","Now her hole has a nice blue light."] },
+      { t:"June's Tune", sc:["🥁","👧","🫏","🐶"], text:["June has a cute little drum.","She likes to play a tune on it.","Bump, bump, bump goes the drum.","Her mule dances in the grass.","Her dog wags its tail.","Everyone on the farm likes June's tune."] },
+      { t:"The Brave Skater", sc:["⛸️","👦","👨","😁"], text:["Blake got skates for his birthday.","At first, he slipped and fell.","He did not quit.","He held his dad's hand and tried again.","Slowly, he could glide on his own.","Now Blake skates with a big grin."] },
+      { t:"The Snack Plate", sc:["🍇","🧀","🍽️","👧"], text:["Grace made a snack plate for her friends.","She cut grapes, plums, and pears.","She put cheese on crackers.","She placed it all on a big white plate.","Her friends came and ate every crumb.","They said it was the best snack ever!"] },
+      { t:"Stuck in the Tree", sc:["🪁","🌳","👦","🪵"], text:["A small kite got stuck in a tall tree.","Brent tried to grab it, but it was too high.","His friend Sid had a plan.","They got a long stick from the shed.","Sid held the stick steady while Brent poked the kite.","The kite fell, and the boys jumped with joy."] }
+    ],
+    comp: [
+      { t:"Dave's Garden", sc:["🍅","🌿","🚿"], text:"Dave has a small garden by his home. He grows tomatoes, grapes, and mint. Every day, he waters the plants with a hose. When the grapes are ripe, he picks them and shares them with his friends. Dave says gardening makes him happy and calm.",
+        q:[ {q:"Where is Dave's garden?", o:["at school","by his home","in a store"], a:1},
+            {q:"What does Dave use to water the plants?", o:["a hose","a cup","a bucket"], a:0},
+            {q:"How does gardening make Dave feel?", o:["sad and tired","angry","happy and calm"], a:2} ] },
+      { t:"The Spelling Bee", sc:["🐝","🔤","🏅"], text:"Our class had a spelling bee on Friday. Each student had to spell five words. Jake spelled flame, plane, and stripe right. Then he got stuck on the word brave. He took a deep breath and spelled it slowly. He got it right and won a prize!",
+        q:[ {q:"When was the spelling bee?", o:["Monday","Friday","Sunday"], a:1},
+            {q:"Which word was hard for Jake?", o:["flame","plane","brave"], a:2},
+            {q:"What did Jake do?", o:["took a deep breath","ran away","cried"], a:0} ] }
+    ],
+    sight: ["ask","going","let","may","old","stop","thank","ate","black","brown","eat","four","please","soon","well","white"],
+    hfw: ["bike","cake","game","gave","late","like","make","nose","note","rope","smile","stone","tube","cute","use","those"]
+  },
+  G3: {
+    stories: [
+      { t:"The Lost Puppy", sc:["🐶","🌧️","👦","🏠"], text:["Rain was falling when Dean found a puppy near the road.","The puppy was wet, weak, and alone.","Dean wrapped it in his coat and took it home.","His mom gave it a warm meal and a soft blanket.","The next day, they put up signs around the town.","A happy girl came to claim her puppy and thanked Dean."] },
+      { t:"Sail Away", sc:["⛵","👧","🦭","🌊"], text:["Gail dreams of sailing on the sea.","She reads books about boats every day.","On her birthday, her dad takes her on a real sailboat.","The wind fills the sail, and the boat speeds away.","Gail sees seals playing in the waves.","She says this is the greatest day of the year."] },
+      { t:"The Snowman", sc:["⛄","❄️","🥕","📸"], text:["Last winter, Joe visited his cousins in a cold country.","He saw snow for the first time.","He and his cousins made a big snowman.","They gave it two stones for eyes and a carrot for a nose.","Joe's toes were freezing, but he was smiling.","He took a photo to show his friends at home."] },
+      { t:"Team Play", sc:["⚽","🥅","👦","🏆"], text:["Kai's team was losing the soccer game.","The coach called the players together.","He said, We need to play as a team, not alone.","The players began to pass the ball to each other.","Soon, Kai kicked the ball into the goal.","The team won, and everyone cheered as one."] },
+      { t:"The Full Moon", sc:["🌕","🔭","👧","👨"], text:["One night, Mia and her dad went outside to see the full moon.","It was bright and round, like a big white plate.","Dad told her that the moon does not make its own light.","It shines because sunlight bounces off it.","Mia looked through a telescope and saw holes called craters.","She could not wait to learn more about space."] },
+      { t:"Grow a Bean", sc:["🫘","🪴","☀️","📈"], text:["Our teacher gave each of us a bean seed.","We placed it in a cup with soil and water.","We kept the cups by the window in the sunlight.","After three days, a tiny root came out.","Then a green stem grew up toward the light.","We kept a chart to show how much it grew each day."] }
+    ],
+    comp: [
+      { t:"The Arabian Horse", sc:["🐎","🏜️","⭐"], text:"The Arabian horse is one of the oldest horse breeds in the world. It comes from the Arabian Peninsula, where people raised it for thousands of years. Arabian horses are known for their beauty, speed, and strength. They have a special head shape and a tail that they hold high. These horses can travel long distances in hot weather. Many people say they are smart and loyal to their owners.",
+        q:[ {q:"Where does the Arabian horse come from?", o:["Europe","the Arabian Peninsula","America"], a:1},
+            {q:"What are Arabian horses known for?", o:["being slow","being small","beauty, speed, and strength"], a:2},
+            {q:"How do they hold their tail?", o:["high","low","to the side"], a:0},
+            {q:"What does loyal mean?", o:["lazy","faithful","angry"], a:1} ] },
+      { t:"Recess Rules", sc:["🛝","🔔","🏫"], text:"At our school, recess is a time to play and rest. But there are a few rules to keep everyone safe. We must stay inside the playground area. We should take turns on the slide and the swings. If someone gets hurt, we tell a teacher right away. When the bell rings, we line up quickly and quietly. Following these rules helps everyone have fun.",
+        q:[ {q:"What is recess for?", o:["to play and rest","to take tests","to sleep"], a:0},
+            {q:"What should we do on the swings?", o:["push others","take turns","stand on them"], a:1},
+            {q:"What do we do if someone gets hurt?", o:["laugh","run away","tell a teacher"], a:2},
+            {q:"Why do we follow the rules?", o:["to stay safe and have fun","to finish early","to win prizes"], a:0} ] }
+    ],
+    sight: ["cold","off","tell","those","upon","us","use","wash","wish","would","warm","shall","try","full","done","today"],
+    hfw: ["rain","train","day","feet","team","beach","boat","coat","snow","slow","mail","paint","seed","dream","toast","yellow"]
+  },
+  G4: {
+    stories: [
+      { t:"The Shortcut", sc:["🌲","🧭","👦","🛣️"], text:["Marcus always walked the long way home from school.","One afternoon, his friend Curtis suggested a shortcut through the forest.","The path was narrow, and the dark trees blocked the sun.","Soon, the boys realized they were lost.","They stopped, stayed calm, and listened carefully.","Following the sound of cars on the road, they found their way out.","From then on, they agreed that the long way was the smart way."] },
+      { t:"Healthy Soil", sc:["🌻","👴","👧","🪱"], text:["Mr. Boyd's garden had always been full of flowers.","This year, the plants were small and weak.","His granddaughter Joy noticed that the soil was hard and dry.","They added compost made from fruit peels and leaves.","They also turned the soil so air could reach the roots.","A month later, the garden burst with color.","Joy learned that healthy soil is the secret to healthy plants."] },
+      { t:"The Surprise Party", sc:["🎂","🎉","👩","💌"], text:["Thursday was Mom's birthday, and Bader wanted to surprise her.","He and his sisters planned everything in secret.","They ordered a cake, hung paper stars, and wrote cards.","When Mom opened the door, they all shouted, Surprise!","Mom was so shocked that she almost dropped her purse.","Then she laughed and hugged each of them.","She said it was the best birthday she ever had."] },
+      { t:"Clouds", sc:["☁️","🌥️","🌧️","🔭"], text:["Clouds come in many shapes and sizes.","Puffy white clouds that look like cotton are called cumulus clouds.","Thin, feathery clouds high in the sky are called cirrus clouds.","Thick gray clouds that cover the sky often bring rain.","Scientists study clouds to forecast the weather.","Next time you look up, try to name the clouds you see."] },
+      { t:"A Hard Lesson", sc:["🎮","😴","📝","📅"], text:["Faris loved video games more than anything.","He played late at night and often forgot his homework.","One morning, he was too tired to think during a math test.","When he got his grade, he felt terrible.","He decided to make a schedule: homework first, games later.","At the end of the term, his grades were much better.","Faris learned that good choices bring good results."] },
+      { t:"The Pearl Divers", sc:["🦪","⛵","🌊","⚪"], text:["Long ago, many men in the Gulf worked as pearl divers.","They sailed out in wooden boats for months at a time.","Each diver held his breath and sank to the sea floor with a heavy stone.","He gathered oysters quickly and was pulled back up by a rope.","Inside a few oysters, they found shiny pearls.","The work was hard and dangerous, but it was an important part of life on the coast."] }
+    ],
+    comp: [
+      { t:"The Falcon", sc:["🦅","🏜️","🏆"], text:"The falcon is a powerful bird of prey and an important symbol in Saudi culture. Falcons have sharp eyes that can spot prey from far away. The peregrine falcon is known as one of the fastest animals on Earth, especially when it dives through the air. For centuries, people in the Arabian Peninsula have trained falcons to hunt. Today, falconry festivals and competitions celebrate this old tradition.",
+        q:[ {q:"What kind of bird is the falcon?", o:["a sea bird","a bird of prey","a farm bird"], a:1},
+            {q:"What helps falcons find prey?", o:["long legs","loud calls","sharp eyes"], a:2},
+            {q:"Which falcon is one of the fastest animals?", o:["the peregrine falcon","the barn falcon","the snow falcon"], a:0},
+            {q:"What do falconry festivals celebrate?", o:["fishing","an old tradition","football"], a:1} ] },
+      { t:"Being a Good Friend", sc:["🤝","💬","❤️"], text:"Everyone wants to have good friends, but it is just as important to be one. A good friend listens when you talk and cares about how you feel. Good friends tell the truth, even when it is hard. They share, take turns, and say sorry when they make a mistake. A good friend also encourages you to do your best. When we treat our friends with kindness and respect, our friendships grow stronger.",
+        q:[ {q:"What does a good friend do when you talk?", o:["ignores you","listens","leaves"], a:1},
+            {q:"What should a friend do after a mistake?", o:["hide","blame others","say sorry"], a:2},
+            {q:"What makes friendships stronger?", o:["kindness and respect","money","video games"], a:0},
+            {q:"What is the main idea?", o:["how to win games","how to be a good friend","how to save money"], a:1} ] }
+    ],
+    sight: ["shall","small","start","try","warm","yourself","each","early","heard","idea","instead","thought","young","whole","special","minute"],
+    hfw: ["bird","third","shirt","nurse","burn","storm","corner","garden","market","flower","cloud","mouth","point","voice","royal","enjoy"]
+  },
+  G5: {
+    stories: [
+      { t:"The Missing Notebook", sc:["📓","🎒","🧊","📝"], text:["On the morning of the final exam, Majid could not find his notebook.","He searched his backpack, his desk, and even under his bed.","Instead of panicking, he reviewed the lessons he remembered.","He asked a classmate to explain one tricky idea.","During the exam, he concentrated carefully on each question.","Later, his mother found the notebook inside the refrigerator, next to the milk!","Majid laughed and realized that understanding is more valuable than memorizing."] },
+      { t:"The Old Clock", sc:["🕰️","👴","👧","⚙️"], text:["In Grandfather's living room stood an enormous wooden clock.","One day, it stopped ticking, and the house felt strangely silent.","Grandfather explained that the clock had belonged to his own father.","Together, Yara and her grandfather carefully opened its back panel.","They cleaned the gears and replaced a tiny broken spring.","When the clock chimed again, Grandfather smiled with happy tears.","Yara understood that some objects hold precious memories."] },
+      { t:"A Different Kind of Hero", sc:["🦸","👩‍⚕️","📝","❤️"], text:["Everyone in the class admired athletes and movie stars.","Their teacher asked them to write about a hero in their own lives.","Turki chose to write about his mother, a nurse who worked long night shifts.","He described how she comforted patients and never complained.","As he read his essay aloud, the room became completely quiet.","Several classmates clapped warmly when he finished.","Turki realized that real heroes are often the people closest to us."] },
+      { t:"The Impossible Puzzle", sc:["🧩","🌌","👧","👦"], text:["Hessa received a thousand-piece puzzle of the night sky.","At first, every dark piece looked exactly the same.","After an hour, she felt frustrated and nearly quit.","Her brother suggested sorting the pieces by shape first.","Using this strategy, she completed the edges, then the stars, then the moon.","Three days later, the final piece clicked into place.","Hessa learned that a clever strategy can make a difficult task manageable."] },
+      { t:"Desert Survival", sc:["🏜️","🌪️","🚙","👨"], text:["During a family camping trip, a strong sandstorm suddenly approached.","Father calmly told everyone to cover their faces and stay inside the car.","He explained that leaving the car during a sandstorm is extremely dangerous.","They waited patiently while the wind howled for nearly an hour.","When the storm finally passed, the sky was orange and still.","They checked the engine, cleaned the windows, and continued safely.","Abdulaziz never forgot that staying calm is the best survival skill."] },
+      { t:"The Library Card", sc:["📚","🎫","👧","🌋"], text:["When Dana turned ten, her aunt took her to the public library.","Dana received her very own library card.","She was amazed by the endless rows of books on every topic imaginable.","She borrowed books about volcanoes, ancient Egypt, and famous inventors.","Every week, she returned her books and chose new adventures.","By the end of the year, she had read more than fifty books.","Dana discovered that a library card is a ticket to anywhere."] }
+    ],
+    comp: [
+      { t:"Honeybees Dance", sc:["🐝","💃","🌼"], text:"Honeybees cannot speak, but they have a remarkable way of communicating. When a worker bee discovers a good source of food, it returns to the hive and performs a special movement called the waggle dance. The direction of the dance tells the other bees which way to fly, while the length of the dance shows how far away the food is. Scientists were amazed when they first decoded this system. It shows that even tiny insects can share complex information.",
+        q:[ {q:"What is the special movement called?", o:["the waggle dance","the buzz song","the circle run"], a:0},
+            {q:"What does the direction of the dance show?", o:["the size of the food","which way to fly","the time of day"], a:1},
+            {q:"What does the length of the dance show?", o:["how many bees there are","the weather","how far away the food is"], a:2},
+            {q:"What does remarkable mean?", o:["ordinary","amazing","boring"], a:1} ] },
+      { t:"Making Healthy Choices", sc:["🥗","🏃","😴"], text:"Every day, we make many choices about food, exercise, and rest. Some choices seem small, such as drinking water instead of soda or taking the stairs instead of the elevator. However, small choices add up over time. A balanced diet gives our bodies the vitamins and energy we need. Regular exercise strengthens our hearts and muscles. Getting enough sleep helps our brains work well. By making healthy choices consistently, we can feel better and achieve more.",
+        q:[ {q:"What is an example of a small healthy choice?", o:["drinking soda","drinking water instead of soda","skipping sleep"], a:1},
+            {q:"What does regular exercise strengthen?", o:["our hearts and muscles","our hair","our shoes"], a:0},
+            {q:"What does consistently mean?", o:["rarely","never","regularly"], a:2},
+            {q:"What is the main idea?", o:["Small healthy choices add up.","Soda is delicious.","Elevators are fast."], a:0} ] }
+    ],
+    sight: ["believe","beautiful","business","calendar","doubt","height","island","library","measure","neighbor","ocean","people","science","straight","weigh","guess"],
+    hfw: ["unhappy","rewrite","preview","careful","helpful","quickly","kindness","darkness","dislike","misplace","hopeless","enjoyment","movement","reread","unlock","painless"]
+  },
+  G6: {
+    stories: [
+      { t:"The Inventor's Notebook", sc:["📓","☀️","💧","🏆"], text:["Hamad's great-uncle had been an engineer who never stopped inventing.","After he passed away, Hamad inherited a worn leather notebook full of sketches.","Some drawings showed machines that collected water from desert air.","Others described solar ovens and wind-powered pumps.","Hamad realized that many of these ideas were ahead of their time.","With his science teacher's help, he built a working model of one design.","The project won the regional science fair and honored his great-uncle's legacy."] },
+      { t:"Two Sides of the Story", sc:["🪟","🎥","👦","⚖️"], text:["When a window in the school library was broken, everyone suspected Saud.","He had been seen near the library just before it happened.","Saud insisted he was innocent, but few people believed him.","Their teacher, however, decided to investigate before judging.","She checked the security camera and discovered that a strong gust of wind had slammed the window shut.","The class apologized to Saud for jumping to conclusions.","They learned that fairness requires listening to every side of the story."] },
+      { t:"Climbing Jabal Sawda", sc:["⛰️","🌫️","🌲","👨‍👦"], text:["Jabal Sawda, near Abha, is the highest mountain in Saudi Arabia.","Last summer, Nawaf and his father decided to hike its trails.","As they climbed, the temperature dropped and fog drifted between the juniper trees.","Nawaf's legs ached, and he wanted to turn back several times.","His father encouraged him to focus on one step at a time.","When they reached the viewpoint, the clouds lay beneath them like a white ocean.","Nawaf realized that the hardest journeys often lead to the most beautiful views."] },
+      { t:"The Volunteer", sc:["📦","🤲","👧","❤️"], text:["During the holidays, Shahad volunteered at a charity that sorted donated food.","The work was repetitive: checking dates, packing boxes, and carrying heavy bags.","At first, she wondered whether her small effort really mattered.","Then she met a family who came to collect a food basket.","The youngest child hugged a box of cereal as if it were a treasure.","Shahad finally understood the impact of her work.","She continued volunteering long after the holidays ended."] },
+      { t:"Artificial Intelligence", sc:["🤖","💻","🩺","🌾"], text:["Artificial intelligence, or AI, refers to computer systems that can perform tasks that usually require human thinking.","These tasks include recognizing images, translating languages, and answering questions.","AI learns by analyzing enormous amounts of data and finding patterns.","Doctors use AI to help detect diseases, and farmers use it to monitor crops.","However, AI can make mistakes, especially if the data it learned from is incomplete.","That is why people must use AI responsibly and always check its results.","Understanding how AI works will be an essential skill for the future."] },
+      { t:"The Bundle of Letters", sc:["✉️","🎀","👵","👧"], text:["Before Grandmother moved in with them, Rawan helped her pack her belongings.","In a dusty drawer, she found a bundle of letters tied with a faded ribbon.","Grandmother explained that they were letters from her own mother, written decades ago.","At that time, telephones were rare, and letters took weeks to arrive.","Each letter was full of advice, prayers, and news about the family.","Rawan decided to write a handwritten letter to her grandmother that very night.","She discovered that written words can carry love across generations."] }
+    ],
+    comp: [
+      { t:"Renewable Energy", sc:["☀️","🌬️","⚡"], text:"Most of the world's electricity has traditionally come from burning fossil fuels such as oil, coal, and gas. These fuels are limited, and burning them releases gases that contribute to climate change. Renewable energy comes from sources that are naturally replenished, such as sunlight and wind. Saudi Arabia receives intense sunshine throughout the year, which makes it an ideal location for solar power. Large solar farms are being built across the Kingdom. Shifting to renewable energy can protect the environment and create new jobs.",
+        q:[ {q:"What are examples of fossil fuels?", o:["sunlight and wind","oil, coal, and gas","water and trees"], a:1},
+            {q:"What does replenished mean?", o:["used up","destroyed","refilled naturally"], a:2},
+            {q:"Why is Saudi Arabia ideal for solar power?", o:["It receives intense sunshine.","It has many rivers.","It is very cold."], a:0},
+            {q:"What is one benefit of renewable energy?", o:["It increases pollution.","It creates new jobs.","It runs out quickly."], a:1} ] },
+      { t:"Why We Read", sc:["📖","🧠","🌍"], text:"Reading is one of the most powerful habits a person can develop. Research shows that students who read regularly tend to have larger vocabularies and stronger writing skills. Reading fiction can also build empathy, because it allows readers to experience the world through another person's eyes. Non-fiction expands our knowledge about science, history, and the world around us. Experts recommend reading for at least twenty minutes every day. Whether you prefer adventure stories or science magazines, the important thing is to keep reading.",
+        q:[ {q:"What do regular readers tend to have?", o:["larger vocabularies","weaker writing","fewer friends"], a:0},
+            {q:"How can fiction build empathy?", o:["by teaching math","by showing another person's view","by being short"], a:1},
+            {q:"How long do experts recommend reading daily?", o:["five minutes","three hours","at least twenty minutes"], a:2},
+            {q:"What is the author's purpose?", o:["to encourage reading","to sell books","to describe a library"], a:0} ] }
+    ],
+    sight: ["evaluate","interpret","illustrate","demonstrate","classify","define","justify","support","conflict","resolution","narrator","perspective","genre","plot","claim","source"],
+    hfw: ["approximately","communicate","distinguish","essential","establish","furthermore","generation","influence","maintain","occur","previous","require","resource","sufficient","tradition","whereas"]
+  }
+};
+
+const PHASE1_AR = {
+  KG3: [
+    { id:"K3-a", ic:"🐫", t:"تنوين الضم", note:"كلمات بتنوين الضم", sc:["🐫","🌙","🍯","🚪"],
+      words:["بَابٌ","قَلَمٌ","وَلَدٌ","جَمَلٌ","أَسَدٌ","قَمَرٌ","فَرَسٌ","عَسَلٌ","ذَهَبٌ","مَطَرٌ","سَمَكٌ","شَجَرٌ"],
+      story:{ t:"هَذَا جَمَلٌ", text:["هَذَا بَابٌ.","هَذَا قَلَمٌ.","هَذَا جَمَلٌ.","هَذَا أَسَدٌ.","هَذَا قَمَرٌ."] } },
+    { id:"K3-b", ic:"🍯", t:"تنوين الفتح والكسر", note:"ـًا و ـٍ", sc:["🍯","✏️","🐪","😊"],
+      words:["بَابًا","قَلَمًا","وَلَدًا","جَمَلًا","عَسَلًا","مَطَرًا","بَابٍ","قَلَمٍ","وَلَدٍ","جَمَلٍ","عَسَلٍ","مَطَرٍ"],
+      story:{ t:"عَسَلٌ وَقَلَمٌ", text:["رَأَيْتُ جَمَلًا.","أَكَلْتُ عَسَلًا.","كَتَبْتُ بِقَلَمٍ.","لَعِبْتُ مَعَ وَلَدٍ.","فَرِحْتُ كَثِيرًا."] } },
+    { id:"K3-c", ic:"🎉", t:"مراجعة المدود", note:"ا - و - ي في كلمات جديدة", sc:["🎉","👦","🍇","🏠"],
+      words:["نَارُ","دَارُ","جَارُ","سَاقُ","فُولُ","حُوتُ","كُوبُ","طُولُ","عِيدُ","رِيشُ","طِينُ","سِينُ"],
+      story:{ t:"جَاءَ الْعِيدُ", text:["جَاءَ الْعِيدُ.","لَبِسَ سَامِي ثَوْبًا.","زَارَ سَامِي جَارَهُ.","أَكَلَا تُوتًا وَتِينًا.","قَالَ سَامِي: عِيدٌ سَعِيدٌ!"] } }
+  ],
+  G1: [
+    { id:"G1-a", ic:"🕋", t:"الشدة مع الفتحة", note:"أفعال فيها شدة", sc:["🕋","👴","🤲","❤️"],
+      words:["مَدَّ","شَدَّ","عَدَّ","رَدَّ","دَقَّ","حَجَّ","فَرَّ","مَرَّ","قَصَّ","صَبَّ","جَرَّ","ظَنَّ"],
+      story:{ t:"حَجَّ جَدِّي", text:["حَجَّ جَدِّي إِلَى مَكَّةَ.","مَرَّ جَدِّي بِالْكَعْبَةِ.","دَعَا جَدِّي رَبَّهُ.","رَجَعَ جَدِّي فَرِحًا.","ضَمَّنَا جَدِّي وَقَبَّلَنَا."] } },
+    { id:"G1-b", ic:"🎒", t:"التاء المربوطة", note:"كلمات تنتهي بـ ـة", sc:["🎒","📖","🧸","🏫"],
+      words:["وَرَقَةٌ","سَاعَةٌ","لُعْبَةٌ","قِصَّةٌ","غُرْفَةٌ","سَمَكَةٌ","بَقَرَةٌ","نَخْلَةٌ","فَرَاشَةٌ","دَجَاجَةٌ","حَقِيبَةٌ","مِرْآةٌ"],
+      story:{ t:"حَقِيبَةُ لَيْلَى", text:["لِلَيْلَى حَقِيبَةٌ جَمِيلَةٌ.","فِي الْحَقِيبَةِ قِصَّةٌ وَوَرَقَةٌ.","وَفِيهَا لُعْبَةٌ صَغِيرَةٌ.","ذَهَبَتْ لَيْلَى إِلَى الْمَدْرَسَةِ.","قَرَأَتِ الْقِصَّةَ مَعَ صَدِيقَتِهَا."] } },
+    { id:"G1-c", ic:"🏫", t:"كلمات المدرسة", note:"أل مع كلمات من الصف", sc:["🏫","🔔","✏️","📒"],
+      words:["الْمَدْرَسَةُ","الْمُعَلِّمُ","الصَّفُّ","السَّبُّورَةُ","الطَّاوِلَةُ","الْكُرْسِيُّ","الدَّفْتَرُ","الْمِمْحَاةُ","الْمِسْطَرَةُ","الْحَقِيبَةُ","الْفُسْحَةُ","الْجَرَسُ"],
+      story:{ t:"فِي صَفِّي", text:["دَخَلْتُ الصَّفَّ مُبَكِّرًا.","سَلَّمْتُ عَلَى الْمُعَلِّمِ.","جَلَسْتُ عَلَى الْكُرْسِيِّ.","فَتَحْتُ الدَّفْتَرَ وَكَتَبْتُ.","رَنَّ الْجَرَسُ فَخَرَجْنَا إِلَى الْفُسْحَةِ."] } }
+  ],
+  G2: [
+    { id:"G2-3", ic:"🐈", t:"كلمات المكان", note:"فوق، تحت، أمام، خلف...", sc:["🐈","🛏️","🚪","🧸"],
+      words:["فِي","مِنْ","إِلَى","عَلَى","عَنْ","تَحْتَ","فَوْقَ","أَمَامَ","خَلْفَ","بَيْنَ","بِجَانِبِ","حَوْلَ"],
+      story:{ t:"أَيْنَ الْقِطَّةُ؟", text:["بَحَثَتْ سَلْمَى عَنْ قِطَّتِهَا.","نَظَرَتْ تَحْتَ السَّرِيرِ، فَلَمْ تَجِدْهَا.","نَظَرَتْ خَلْفَ الْبَابِ، فَلَمْ تَجِدْهَا.","ثُمَّ نَظَرَتْ فَوْقَ الْخِزَانَةِ.","وَجَدَتِ الْقِطَّةَ نَائِمَةً بَيْنَ الْأَلْعَابِ!","ضَحِكَتْ سَلْمَى وَحَمَلَتْهَا."] } },
+    { id:"G2-4", ic:"🌈", t:"الألوان", note:"أسماء الألوان", sc:["🌈","🌧️","👧","🖍️"],
+      words:["أَحْمَرُ","أَزْرَقُ","أَخْضَرُ","أَصْفَرُ","أَبْيَضُ","أَسْوَدُ","بُرْتُقَالِيٌّ","بَنَفْسَجِيٌّ","وَرْدِيٌّ","بُنِّيٌّ","رَمَادِيٌّ","ذَهَبِيٌّ"],
+      story:{ t:"قَوْسُ الْمَطَرِ", text:["بَعْدَ الْمَطَرِ خَرَجَتْ نُورَةُ إِلَى الْحَدِيقَةِ.","رَأَتْ فِي السَّمَاءِ قَوْسًا جَمِيلًا.","فِيهِ لَوْنٌ أَحْمَرُ وَبُرْتُقَالِيٌّ وَأَصْفَرُ.","وَفِيهِ أَخْضَرُ وَأَزْرَقُ وَبَنَفْسَجِيٌّ.","رَسَمَتْ نُورَةُ قَوْسَ الْمَطَرِ فِي دَفْتَرِهَا.","عَلَّقَتْ أُمُّهَا الرَّسْمَةَ عَلَى الْجِدَارِ."] } },
+    { id:"G2-5", ic:"🦒", t:"الحيوانات", note:"أسماء حيوانات", sc:["🦒","🐘","🐒","👦"],
+      words:["حِصَانٌ","غَزَالٌ","جَمَلٌ","نَمِرٌ","زَرَافَةٌ","فِيلٌ","قِرْدٌ","بَقَرَةٌ","خَرُوفٌ","دَجَاجَةٌ","بَطَّةٌ","نَحْلَةٌ"],
+      story:{ t:"فِي حَدِيقَةِ الْحَيَوَانِ", text:["زَارَ فَيْصَلٌ حَدِيقَةَ الْحَيَوَانِ مَعَ أَبِيهِ.","رَأَى زَرَافَةً طَوِيلَةَ الرَّقَبَةِ.","وَرَأَى فِيلًا يَشْرَبُ الْمَاءَ بِخُرْطُومِهِ.","ضَحِكَ فَيْصَلٌ مِنَ الْقِرْدِ وَهُوَ يَقْفِزُ.","قَالَ الْحَارِسُ: لَا تُطْعِمُوا الْحَيَوَانَاتِ.","رَجَعَ فَيْصَلٌ وَرَسَمَ كُلَّ مَا رَآهُ."] } }
+  ],
+  G3: [
+    { id:"G3-3", ic:"✍️", t:"الماضي والمضارع والأمر", note:"كَتَبَ – يَكْتُبُ – اُكْتُبْ", sc:["👨","👦","📖","🕌"],
+      words:["كَتَبَ","يَكْتُبُ","اُكْتُبْ","جَلَسَ","يَجْلِسُ","اِجْلِسْ","فَتَحَ","يَفْتَحُ","اِفْتَحْ","قَرَأَ","يَقْرَأُ","اِقْرَأْ"],
+      story:{ t:"نَصَائِحُ أَبِي", text:["قَالَ أَبِي: يَا خَالِدُ، اِسْمَعْ نَصِيحَتِي.","اِسْتَيْقِظْ مُبَكِّرًا وَصَلِّ الْفَجْرَ.","اِقْرَأْ كُلَّ يَوْمٍ صَفْحَةً مِنْ كِتَابٍ مُفِيدٍ.","سَاعِدْ أُمَّكَ وَاحْتَرِمِ الْكَبِيرَ.","عَمِلَ خَالِدٌ بِنَصَائِحِ أَبِيهِ.","فَصَارَ مِنْ أَفْضَلِ الطُّلَّابِ فِي صَفِّهِ."] } },
+    { id:"G3-4", ic:"🌦️", t:"الفصول والطقس", note:"كلمات عن الجو", sc:["⛺","🔥","🌌","🌧️"],
+      words:["الشِّتَاءُ","الصَّيْفُ","الرَّبِيعُ","الْخَرِيفُ","مَطَرٌ","غُيُومٌ","رِيَاحٌ","حَرَارَةٌ","بَرْدٌ","غُبَارٌ","شَمْسٌ","بَرْقٌ"],
+      story:{ t:"شِتَاءٌ فِي الْبَرِّ", text:["فِي الشِّتَاءِ خَرَجَتْ أُسْرَتِي إِلَى الْبَرِّ.","نَصَبَ أَبِي الْخَيْمَةَ، وَأَشْعَلَ أَخِي النَّارَ.","كَانَ الْجَوُّ بَارِدًا وَالسَّمَاءُ مَلِيئَةً بِالنُّجُومِ.","شَرِبْنَا الْحَلِيبَ السَّاخِنَ وَتَحَدَّثْنَا.","فِي الصَّبَاحِ رَأَيْنَا الْأَرْضَ خَضْرَاءَ بَعْدَ الْمَطَرِ.","قُلْتُ: الشِّتَاءُ أَجْمَلُ الْفُصُولِ!"] } },
+    { id:"G3-5", ic:"👩‍⚕️", t:"المهن", note:"أسماء المهن", sc:["👩‍⚕️","👷","👩‍🏫","✈️"],
+      words:["طَبِيبٌ","مُهَنْدِسٌ","مُعَلِّمٌ","طَيَّارٌ","شُرْطِيٌّ","نَجَّارٌ","خَبَّازٌ","مُزَارِعٌ","مُمَرِّضٌ","رَسَّامٌ","صَيَّادٌ","إِطْفَائِيٌّ"],
+      story:{ t:"مَاذَا تُرِيدُ أَنْ تَكُونَ؟", text:["سَأَلَ الْمُعَلِّمُ طُلَّابَهُ: مَاذَا تُرِيدُونَ أَنْ تَكُونُوا؟","قَالَ سَعْدٌ: أُرِيدُ أَنْ أَكُونَ طَبِيبًا أُعَالِجُ الْمَرْضَى.","وَقَالَ فَهْدٌ: أُرِيدُ أَنْ أَكُونَ مُهَنْدِسًا أَبْنِي الْجُسُورَ.","وَقَالَ عُمَرُ: أُرِيدُ أَنْ أَكُونَ طَيَّارًا أُحَلِّقُ فِي السَّمَاءِ.","ابْتَسَمَ الْمُعَلِّمُ وَقَالَ: كُلُّ مِهْنَةٍ تَخْدُمُ الْوَطَنَ.","وَالطَّرِيقُ إِلَيْهَا يَبْدَأُ بِالْعِلْمِ وَالِاجْتِهَادِ."] } }
+  ],
+  G4: [
+    { id:"G4-3", ic:"🚆", t:"السفر", note:"كلمات عن الرحلات", sc:["🚆","🏜️","🧳","🧃"],
+      words:["مطار","طائرة","جواز","حقيبة","تذكرة","فندق","رحلة","خريطة","سائح","ميناء","قطار","محطة"],
+      story:{ t:"رحلة بالقطار", text:["سافرت عائلة سلمان من الرياض إلى القصيم بالقطار.","وصلوا إلى المحطة مبكرًا وحملوا حقائبهم.","جلس سلمان بجانب النافذة يراقب الصحراء الواسعة.","كان القطار سريعًا، لكنه هادئ ومريح.","وزعت المضيفة العصير والبسكويت على الركاب.","قال سلمان: أحب السفر بالقطار، فهو سريع وآمن."] } },
+    { id:"G4-4", ic:"👃", t:"الحواس", note:"كلمات عن الحواس الخمس", sc:["👀","👂","👃","🍓"],
+      words:["عين","أذن","أنف","لسان","جلد","يرى","يسمع","يشم","يتذوق","يلمس","حاسة","دماغ"],
+      story:{ t:"الصندوق العجيب", text:["في حصة العلوم، أحضرت المعلمة صندوقًا مغلقًا.","طلبت من الطالبات أن يغمضن أعينهن.","لمست هيا شيئًا ناعمًا، وشمّت رائحة جميلة.","ثم تذوقت قطعة صغيرة وقالت: إنها فراولة!","شرحت المعلمة أن الحواس تعمل مع الدماغ لتعرّفنا على العالم.","فرحت الطالبات بهذه التجربة الممتعة."] } },
+    { id:"G4-5", ic:"💧", t:"الماء", note:"كلمات عن دورة الماء", sc:["💧","☀️","☁️","🏞️"],
+      words:["نهر","بحر","مطر","سحاب","بخار","جليد","بئر","سد","وادٍ","ينبوع","قطرة","دورة"],
+      story:{ t:"رحلة قطرة ماء", text:["كانت قطرة صغيرة تعيش في البحر.","سخّنتها الشمس فصعدت إلى السماء بخارًا.","التقت بقطرات أخرى فصارت سحابة كبيرة.","بردت السحابة فنزلت القطرة مطرًا على الجبل.","جرت في الوادي حتى وصلت إلى سد كبير.","وهكذا تستمر دورة الماء التي لا تتوقف."] } }
+  ],
+  G5: [
+    { id:"G5-3", ic:"💻", t:"التقنية", note:"كلمات عن الحاسوب والإنترنت", sc:["💻","📩","🔒","👨"],
+      words:["حاسوب","برمجة","إنترنت","تطبيق","شاشة","لوحة مفاتيح","روبوت","ذكاء","بيانات","كلمة مرور","شبكة","أمان"],
+      story:{ t:"رسالة مزيفة", text:["تلقى ناصر رسالة تقول: لقد ربحت جائزة كبيرة!","طلبت الرسالة منه أن يكتب كلمة المرور الخاصة به.","تذكر ناصر ما تعلمه في المدرسة عن الأمان على الإنترنت.","لم يضغط على الرابط، وأخبر والده فورًا.","شرح له والده أن هذه رسائل احتيال تسرق البيانات.","شعر ناصر بالفخر لأنه تصرف بحكمة."] } },
+    { id:"G5-4", ic:"🏛️", t:"التاريخ والآثار", note:"كلمات عن الحضارات", sc:["🏛️","🪨","📸","🚌"],
+      words:["حضارة","آثار","قلعة","متحف","نقوش","قافلة","تجارة","صخور","واحة","تنقيب","تاريخ","أجداد"],
+      story:{ t:"رحلة إلى العلا", text:["زار طلاب الصف الخامس محافظة العلا في رحلة مدرسية.","رأوا مقابر الحِجر المنحوتة في الصخور الضخمة.","شرح المرشد أن الأنباط عاشوا هنا قبل أكثر من ألفي عام.","وأن الحِجر أول موقع سعودي يُسجَّل في قائمة التراث العالمي.","التقط الطلاب صورًا، وكتبوا ملاحظاتهم في دفاترهم.","عادوا وهم فخورون بتاريخ بلادهم العريق."] } },
+    { id:"G5-5", ic:"🏀", t:"الرياضة", note:"كلمات عن الرياضة والأخلاق", sc:["🏀","🤝","👏","🏅"],
+      words:["بطولة","منتخب","ملعب","مدرب","لاعب","هدف","فوز","خسارة","تمرين","لياقة","ميدالية","جمهور"],
+      story:{ t:"الروح الرياضية", text:["كان فريق المدرسة يلعب المباراة النهائية في كرة السلة.","قبل نهاية المباراة، سقط لاعب من الفريق الآخر وتألم.","توقف عبدالله عن اللعب وساعده على النهوض.","خسر فريق عبدالله بفارق نقطتين.","لكن الجمهور صفق له طويلًا على أخلاقه الرياضية.","قال المدرب: الفوز الحقيقي أن تكون رياضيًا بأخلاقك."] } }
+  ],
+  G6: [
+    { id:"G6-3", ic:"📰", t:"الإعلام", note:"كلمات عن الأخبار والتحقق", sc:["📰","📱","🔍","👧"],
+      words:["صحيفة","خبر","مراسل","مقال","عنوان","مصدر","إشاعة","تحقق","رأي","حقيقة","متابع","منصة"],
+      story:{ t:"الخبر الكاذب", text:["انتشر في مجموعة الصف خبر يقول إن المدرسة ستغلق أسبوعًا.","فرح بعض الطلاب، وبدأوا يخططون لإجازتهم.","لكن ريم سألت: ما مصدر هذا الخبر؟","بحثت في الموقع الرسمي للمدرسة فلم تجد شيئًا.","سألت المرشدة فأكدت أن الخبر إشاعة لا أساس لها.","تعلم الطلاب أن يتحققوا من المصدر قبل نشر أي خبر."] } },
+    { id:"G6-4", ic:"💰", t:"المال والادخار", note:"كلمات عن الاقتصاد الشخصي", sc:["🍋","💰","📒","👧"],
+      words:["ادخار","ميزانية","دخل","مصروف","ربح","تكلفة","سعر","تاجر","زبون","تسويق","بنك","قرض"],
+      story:{ t:"مشروع الليمون", text:["أرادت نوف أن تشتري كتابًا ثمنه خمسون ريالًا.","بدلًا من طلب المال، قررت أن تبدأ مشروعًا صغيرًا.","صنعت عصير الليمون وباعته في سوق المدرسة الخيري.","حسبت التكلفة والسعر، وسجلت الربح في دفتر.","بعد أسبوعين جمعت المبلغ، وتبرعت بجزء منه للجمعية.","تعلمت نوف أن التخطيط والادخار يحققان الأحلام."] } },
+    { id:"G6-5", ic:"🦌", t:"الحياة البرية", note:"كلمات عن الصحراء وكائناتها", sc:["🦌","🏜️","🦅","🌵"],
+      words:["كثبان","واحة","سراب","ضب","المها","صقر","حبارى","جربوع","طلح","سدر","محمية","انقراض"],
+      story:{ t:"عودة المها", text:["كاد المها العربي ينقرض من صحراء الجزيرة العربية.","فقد اصطاده الناس كثيرًا في الماضي حتى اختفى من البرية.","لكن برامج الإكثار أنقذته من الانقراض.","وأُطلقت قطعان منه في محميات طبيعية واسعة.","واليوم يعيش المها من جديد بين الكثبان والسهول.","وتعلمنا قصته أن حماية الطبيعة مسؤولية الجميع."] } }
+  ]
+};
+
+// دمج المرحلة الأولى في المحتوى الأساسي
+Object.keys(PHASE1).forEach(g => { const a = PHASE1[g], e = EN[g];
+  e.stories.push(...a.stories); e.comp.push(...a.comp); e.sight.push(...a.sight); e.hfw.push(...a.hfw); });
+Object.keys(PHASE1_AR).forEach(g => AR[g].units.push(...PHASE1_AR[g]));
+
 const BADGES = [
   { min:0,    ic:"🌱", ar:"قارئ مبتدئ",  en:"Starter" },
   { min:50,   ic:"🥉", ar:"قارئ برونزي", en:"Bronze Reader" },
