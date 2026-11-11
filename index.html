@@ -284,6 +284,15 @@ button:active{transform:scale(.94)}
 .hero h1{font-size:44px}
 .hero h2.en{color:#00788a}
 .lg-top{background:#fff;padding:5px}
+
+/* ================= v4: المستويات ================= */
+.lvbox{margin:0 0 16px}
+.lvh{display:flex;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:12px 14px;margin-bottom:10px;border:3px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.lvh b{display:block;font-size:19px}.lvh small{color:var(--mu);font-weight:700}.lvh div{flex:1}
+.lvn{font-size:34px}
+.lvh.ok{border-color:var(--g);background:#e8fbf7}
+.lvh.lock{background:#f1edff;opacity:.85;box-shadow:none}
+.stage.lockd{opacity:.6;background:#f1edff;box-shadow:none}
 </style>
 </head>
 <body>
@@ -310,11 +319,12 @@ const SETTINGS = {
   school: "مدارس العناية ثنائية اللغة",
   branch: "مجمع ظهرة لبن",
   schoolEn: "Al-Enayah Bilingual Schools · Dhahrat Laban",
-  adminPin: "2026"   // الرقم السري للمعلمة
+  adminPin: "2026",   // الرقم السري للمعلمة
+  studentPin: "1234"  // غير مستخدم — الدخول بدون رقم سري
 };
 
 /* =========================================================
-   👦👧 حسابات الطلاب — كل طالب: رقم مميز، الاسم، الصف، رقم سري (4 أرقام)
+   👦👧 حسابات الطلاب — كل طالب: رقم مميز، الاسم، الصف (الرقم السري موحد: studentPin في SETTINGS)
    الصفوف: KG3, G1, G2, G3, G4, G5, G6  ·  القسم: B = بنين ، G = بنات ، KA/KB/KC = فصول كي جي 3
    ========================================================= */
 const STUDENTS = [
@@ -522,143 +532,298 @@ const SECS = {
 const avatar = s => s.sec === "B" ? "👦" : s.sec === "G" ? "👧" : "🧒";
 
 /* =========================================================
-   📚 المحتوى الإنجليزي — متدرج حسب الفونكس
+   📚 المحتوى الإنجليزي — لكل صف قائمة واحدة، والمستويات تتقسم تلقائيًا:
+   القصص: كل قصتين = مستوى · الفهم القرائي: كل قطعة = مستوى · الكلمات: كل 8 كلمات = مستوى
+   لإضافة قصة جديدة: أضيفيها في آخر القائمة فقط (لا تغيّري ترتيب القديم)
    ========================================================= */
+const PER = { stories:2, comp:1, sight:8, hfw:8 };
 const EN = {
   KG3: {
     focus: "Letter sounds & CVC words",
     stories: [
-      { t:"The Cat", text:["I see a cat.","The cat is fat.","The cat sat on a mat.","The cat has a red hat.","I like the cat!"] },
-      { t:"The Big Dog", text:["I see a big dog.","The dog can run.","The dog can dig.","The dog can sit.","Good dog!"] }
+      { t:"The Cat", sc:["☀️","🐱","🎩","🧶"], text:["I see a cat.","The cat is fat.","The cat sat on a mat.","The cat has a red hat.","I like the cat!"] },
+      { t:"The Big Dog", sc:["🐶","🦴","🌳","⚽"], text:["I see a big dog.","The dog can run.","The dog can dig.","The dog can sit.","Good dog!"] },
+      { t:"The Red Bus", sc:["🚌","👩","🧒","🛣️"], text:["I see a red bus.","The bus is big.","Mom and I get on the bus.","The bus can go fast.","We sit and we look.","I like the red bus!"] },
+      { t:"A Fox in a Box", sc:["🦊","📦","🌳","⭐"], text:["Look! A fox!","The fox is in a box.","The fox can hop.","Hop, hop, hop!","The fox is out of the box.","Run, fox, run!"] },
+      { t:"The Hen and the Egg", sc:["🐔","🥚","🐣","🌾"], text:["I see a hen.","The hen is red.","The hen sat on an egg.","The egg can crack.","A chick is in the egg!","The hen and the chick are glad."] },
+      { t:"Pam and the Sun", sc:["☀️","👧","🧢","🏖️"], text:["Pam is in the sun.","Pam has a cap.","Pam can run and jump.","Pam can dig in the sand.","Pam is hot.","Pam sips from a cup."] }
     ],
     comp: [
-      { t:"My Pet", text:"I have a pet. It is a fish. The fish is red. It can swim. I love my fish.",
+      { t:"My Pet", sc:["🐠","🫧","❤️"], text:"I have a pet. It is a fish. The fish is red. It can swim. I love my fish.",
         q:[ {q:"What is the pet?", o:["a cat","a fish","a dog"], a:1},
             {q:"What color is the fish?", o:["red","blue","green"], a:0},
-            {q:"What can the fish do?", o:["run","swim","jump"], a:1} ] }
+            {q:"What can the fish do?", o:["run","swim","jump"], a:1} ] },
+      { t:"The Big Bag", sc:["🎒","🧢","🥤"], text:"Tom has a big bag. The bag is red. In the bag is a cap and a cup. Tom can run with the bag. Tom is happy.",
+        q:[ {q:"What color is the bag?", o:["blue","red","pink"], a:1},
+            {q:"What is in the bag?", o:["a cat","a dog","a cap and a cup"], a:2},
+            {q:"Who has the bag?", o:["Tom","Sam","Pam"], a:0} ] },
+      { t:"At the Park", sc:["🦆","🌳","👨"], text:"I go to the park with Dad. I see a duck. The duck is in the pond. I sit on a log. Dad and I have fun.",
+        q:[ {q:"Who goes to the park?", o:["Mom","Dad","Nan"], a:1},
+            {q:"Where is the duck?", o:["in a box","on a bed","in the pond"], a:2},
+            {q:"What do I sit on?", o:["a log","a bus","a mat"], a:0} ] }
     ],
-    sight: ["I","a","the","see","is","my","can","go","we","to","like","and","it","in","look","you"],
-    hfw: ["at","on","up","am","an","big","run","sit","hop","mom","dad","yes","no","red","get","not"]
+    sight: ["I","a","the","see","is","my","can","go","we","to","like","and","it","in","look","you","he","she","me","be","no","up","for","said"],
+    hfw: ["at","on","up","am","an","big","run","sit","hop","mom","dad","yes","no","red","get","not","dog","cat","fun","bed","hot","pig","box","sun"]
   },
   G1: {
     focus: "Short vowels & digraphs (sh, ch, th)",
     stories: [
-      { t:"Ben and the Red Hen", text:["Ben has a red hen.","The hen is in a big pen.","The hen can peck and run.","One day, the hen got out!","Ben ran and ran.","He got the hen.","Ben put the hen back in the pen."] },
-      { t:"Chip's Ship", text:["Chip has a ship.","The ship is on the sand.","Chip and his dad push the ship.","Now the ship is in the sea!","Chip can fish from the ship.","He gets a big fish for lunch."] }
+      { t:"Ben and the Red Hen", sc:["👦","🐔","🌾","🏡"], text:["Ben has a red hen.","The hen is in a big pen.","The hen can peck and run.","One day, the hen got out!","Ben ran and ran.","He got the hen.","Ben put the hen back in the pen."] },
+      { t:"Chip's Ship", sc:["⛵","🐟","🌊","🏖️"], text:["Chip has a ship.","The ship is on the sand.","Chip and his dad push the ship.","Now the ship is in the sea!","Chip can fish from the ship.","He gets a big fish for lunch."] },
+      { t:"The Fish Shop", sc:["🐟","🏪","👧","🚐"], text:["Beth and her mom go to the fish shop.","The shop has lots of fish.","Beth sees a fish with a long thin tail.","Mom gets six fish for lunch.","Beth helps Mom with the bag.","Then they go back to the van."] },
+      { t:"Thad the Moth", sc:["🦋","💡","🌙","🛏️"], text:["Thad is a little moth.","He likes the lamp on the desk.","At night, Thad flaps to the lamp.","Then the lamp is off.","Thad naps on a thick rug.","When the sun is up, Thad is glad."] },
+      { t:"Chess with Gran", sc:["♟️","👵","👦","🏆"], text:["Josh has a chess set.","He plays chess with Gran.","Gran is quick and smart.","Josh thinks and thinks.","Then he picks the best step.","Check! Josh wins the game!","Gran claps and gives him a hug."] },
+      { t:"The Duck in the Mud", sc:["🦆","🟫","👦","💦"], text:["A duck got stuck in the mud.","Quack, quack! The duck is sad.","Chad and Sam see the duck.","They get a stick.","The duck hops on the stick.","Splash! The duck is in the pond.","The duck is glad, and so are Chad and Sam."] }
     ],
     comp: [
-      { t:"Sam's Hat", text:"Sam has a hat. The hat is big and black. Sam puts the hat on his dog. The dog runs in the sun. Sam runs after the dog. They have fun.",
+      { t:"Sam's Hat", sc:["🎩","🐕","☀️"], text:"Sam has a hat. The hat is big and black. Sam puts the hat on his dog. The dog runs in the sun. Sam runs after the dog. They have fun.",
         q:[ {q:"What color is the hat?", o:["red","black","blue"], a:1},
             {q:"Where does Sam put the hat?", o:["on his dog","on his bed","in a box"], a:0},
-            {q:"Where does the dog run?", o:["in the sun","in the bath","in the shop"], a:0} ] }
+            {q:"Where does the dog run?", o:["in the sun","in the bath","in the shop"], a:0} ] },
+      { t:"The Lost Shell", sc:["🐚","🏖️","👦"], text:"Seth went to the beach with his dad. He found a big pink shell. He put it in his bag. Then the bag fell in the sand. Seth dug and dug. At last, he got his shell back. Seth was so happy.",
+        q:[ {q:"Where did Seth go?", o:["to the shop","to the beach","to school"], a:1},
+            {q:"What did he find?", o:["a pink shell","a red ball","a fish"], a:0},
+            {q:"How did Seth feel at the end?", o:["sad","mad","happy"], a:2} ] },
+      { t:"Chen's Lunch", sc:["🥪","🍎","🤝"], text:"Chen has a lunch box. In it is a ham sandwich, a red apple, and some chips. At lunch, Chen sits with his friend Rich. Rich has no lunch. Chen shares his chips with Rich. They both smile.",
+        q:[ {q:"What color is the apple?", o:["green","red","yellow"], a:1},
+            {q:"Who has no lunch?", o:["Chen","Rich","Mom"], a:1},
+            {q:"What does Chen share?", o:["his apple","his chips","his cup"], a:1} ] }
     ],
-    sight: ["he","she","was","are","have","they","that","with","said","there","out","what","this","all","but","do"],
-    hfw: ["of","his","for","from","had","by","not","one","were","when","your","them","which","their","if","will"]
+    sight: ["he","she","was","are","have","they","that","with","said","there","out","what","this","all","but","do","come","here","into","many","now","who","why","where"],
+    hfw: ["of","his","for","from","had","by","not","one","were","when","your","them","which","their","if","will","did","then","much","went","must","back","just","ask"]
   },
   G2: {
     focus: "Blends & magic e (a_e, i_e, o_e, u_e)",
     stories: [
-      { t:"Jake's Kite", text:["Jake made a kite.","It is white with a blue stripe.","Jake takes his kite up the hill.","The wind is strong.","The kite flies up, up, up!","Jake smiles a big smile.","He made the kite all by himself!"] },
-      { t:"The Frog in the Pond", text:["A green frog sits on a stone.","It stops and looks at a fly.","Snap! The frog grabs the fly.","Then it jumps into the pond.","Splash!","The frog swims to a lily pad and naps in the sun."] }
+      { t:"Jake's Kite", sc:["🪁","👦","⛰️","💨"], text:["Jake made a kite.","It is white with a blue stripe.","Jake takes his kite up the hill.","The wind is strong.","The kite flies up, up, up!","Jake smiles a big smile.","He made the kite all by himself!"] },
+      { t:"The Frog in the Pond", sc:["🐸","🪰","🪷","☀️"], text:["A green frog sits on a stone.","It stops and looks at a fly.","Snap! The frog grabs the fly.","Then it jumps into the pond.","Splash!","The frog swims to a lily pad and naps in the sun."] },
+      { t:"The Snake and the Cake", sc:["🐍","🍰","👧","🏞️"], text:["Jane baked a cake for the class.","She placed it on a plate by the gate.","A small snake slid up to the cake.","Jane froze and did not make a sound.","The snake did not like cake. It slid away!","Jane and the class ate the cake by the lake."] },
+      { t:"Pete's Bike Ride", sc:["🚲","🚦","🍇","🏠"], text:["Pete rides his bike to the store.","He has to stop at the red light.","He waits, then he rides on.","At the store, he gets plums and grapes.","He puts them in the basket on his bike.","Pete rides home and shares the fruit with his mom."] },
+      { t:"The Spotted Crab", sc:["🦀","🏖️","👦","🌊"], text:["Fred went to the beach in June.","He spotted a crab under a stone.","The crab was small and had a spot on its back.","Fred made a home for it in a pail of sand.","At the end of the day, Fred let the crab go.","The crab ran back to the waves."] },
+      { t:"Rose and the Flute", sc:["🎶","👧","🎂","👏"], text:["Rose got a flute for her birthday.","At first, the notes were not nice.","Toot! Squeak! Her brother hid his ears.","Rose did not quit.","She played a little every day.","By the end of the month, she played a sweet tune.","Her whole family clapped and smiled."] }
     ],
     comp: [
-      { t:"Mike's Bike", text:"Mike got a new bike. It is red and fast. Every day, Mike rides his bike to the park. One day, he fell and cut his knee. His mom helped him. Now Mike always wears a helmet.",
+      { t:"Mike's Bike", sc:["🚲","⛑️","🌳"], text:"Mike got a new bike. It is red and fast. Every day, Mike rides his bike to the park. One day, he fell and cut his knee. His mom helped him. Now Mike always wears a helmet.",
         q:[ {q:"What color is the bike?", o:["red","green","white"], a:0},
             {q:"Where does Mike ride his bike?", o:["to school","to the park","to the shop"], a:1},
-            {q:"What does Mike wear now?", o:["a hat","a helmet","a coat"], a:1} ] }
+            {q:"What does Mike wear now?", o:["a hat","a helmet","a coat"], a:1} ] },
+      { t:"The Class Trip", sc:["🚌","🦒","🐍"], text:"Mr. Blake's class went on a trip to the zoo. They took a big bus. First, they saw the snakes and the frogs. Next, they saw a huge fish in a tank. At noon, they ate lunch on the grass. Grace said the best part was the giraffes because they were so tall.",
+        q:[ {q:"Where did the class go?", o:["to the zoo","to the beach","to the mall"], a:0},
+            {q:"How did they get there?", o:["by car","by bus","by train"], a:1},
+            {q:"What did Grace like best?", o:["the snakes","the frogs","the giraffes"], a:2} ] },
+      { t:"The Smile Club", sc:["😊","💌","🏫"], text:"Kate started a Smile Club at school. Every week, the club does something kind. One week, they made cards for sick children. Another week, they cleaned the playground. Kate says that a small kind act can make a big difference. Now many students want to join.",
+        q:[ {q:"What did Kate start?", o:["a Smile Club","a soccer team","a book shop"], a:0},
+            {q:"What did the club make?", o:["cakes","cards","kites"], a:1},
+            {q:"What does Kate say?", o:["Small kind acts make a big difference.","Clubs are boring.","Only big acts matter."], a:0} ] }
     ],
-    sight: ["after","again","could","every","from","give","know","live","once","open","over","put","round","some","think","walk"],
-    hfw: ["new","sound","take","only","little","work","place","year","back","most","very","thing","our","just","name","good"]
+    sight: ["after","again","could","every","from","give","know","live","once","open","over","put","round","some","think","walk","also","any","fly","her","help","how","pretty","under"],
+    hfw: ["new","sound","take","only","little","work","place","year","back","most","very","thing","our","just","name","good","made","line","home","same","time","came","ride","hope"]
   },
   G3: {
     focus: "Vowel teams (ai, ay, ee, ea, oa, ow)",
     stories: [
-      { t:"A Rainy Day", text:["It is a gray, rainy day.","Maya cannot play outside.","She feels sad and stays by the window.","Then her grandma has an idea.","They bake oat cookies and read a book together.","Maya says it is the best rainy day ever!"] },
-      { t:"The Little Seed", text:["Leo plants a seed in a pot.","He gives it water each week.","He keeps the pot in the sun.","At first, he sees nothing.","He waits and waits.","One morning, he sees a green leaf!","Soon, the seed grows into a tall plant with a yellow flower."] }
+      { t:"A Rainy Day", sc:["🌧️","👧","🍪","📖"], text:["It is a gray, rainy day.","Maya cannot play outside.","She feels sad and stays by the window.","Then her grandma has an idea.","They bake oat cookies and read a book together.","Maya says it is the best rainy day ever!"] },
+      { t:"The Little Seed", sc:["🌱","🪴","🌻","💧"], text:["Leo plants a seed in a pot.","He gives it water each week.","He keeps the pot in the sun.","At first, he sees nothing.","He waits and waits.","One morning, he sees a green leaf!","Soon, the seed grows into a tall plant with a yellow flower."] },
+      { t:"The Boat Race", sc:["⛵","🌊","👦","🏁"], text:["Every year, the town has a boat race on the bay.","Noah and his dad built a boat from wood.","They painted it green with a yellow stripe.","On the day of the race, the wind blew hard.","Their boat sailed fast and stayed in the lead.","Noah cheered as they crossed the line first!"] },
+      { t:"The Peach Tree", sc:["🍑","🌳","👴","🧺"], text:["Grandpa has a peach tree in his yard.","Each summer, the tree is full of sweet peaches.","Kai and Mia help him pick them.","They fill three baskets to the top.","Grandpa says they can keep one basket.","They take the rest to the neighbors and share the treat."] },
+      { t:"The Snail's Trail", sc:["🐌","🍃","🌧️","🌈"], text:["A tiny snail named Gail lived under a leaf.","Each day, she left a shiny trail on the ground.","One day, rain began to fall.","Gail crawled slowly to a safe place under a rock.","She waited until the rain stopped.","When the sun came out, she saw a rainbow and smiled."] },
+      { t:"Show and Tell", sc:["🐚","🐶","🚂","🏫"], text:["Today was show and tell at school.","Ray brought a seashell that his uncle found by the sea.","Leah showed a photo of her new puppy.","Owen held up a toy train he built himself.","The teacher asked each child to explain their item.","Everyone agreed it was the best day of the week."] }
     ],
     comp: [
-      { t:"The Goat and the Boat", text:"Old Joe has a goat named Snow. Snow loves to eat. She eats grass, leaves, and even Joe's coat! One day, Joe takes his boat to the lake. Snow jumps into the boat too. The boat rocks and Joe almost falls in. Joe laughs and says Snow is the funniest goat in the world.",
+      { t:"The Goat and the Boat", sc:["🐐","⛵","🧥"], text:"Old Joe has a goat named Snow. Snow loves to eat. She eats grass, leaves, and even Joe's coat! One day, Joe takes his boat to the lake. Snow jumps into the boat too. The boat rocks and Joe almost falls in. Joe laughs and says Snow is the funniest goat in the world.",
         q:[ {q:"What is the goat's name?", o:["Joe","Snow","Rain"], a:1},
             {q:"What funny thing did Snow eat?", o:["a coat","a cake","a shoe"], a:0},
             {q:"Where does Joe take his boat?", o:["to the sea","to the lake","to the river"], a:1},
-            {q:"How does Joe feel at the end?", o:["angry","scared","happy"], a:2} ] }
+            {q:"How does Joe feel at the end?", o:["angry","scared","happy"], a:2} ] },
+      { t:"Bees Are Busy", sc:["🐝","🌸","🍯"], text:"Bees are tiny, but they do a big job. They fly from flower to flower to collect nectar. Back in the hive, they turn the nectar into honey. As they fly, bees also carry pollen between flowers, which helps new plants grow. Without bees, we would have fewer fruits and vegetables. That is why we should keep bees safe.",
+        q:[ {q:"What do bees collect from flowers?", o:["water","nectar","leaves"], a:1},
+            {q:"What do bees make in the hive?", o:["milk","honey","bread"], a:1},
+            {q:"Why are bees important?", o:["They help plants grow.","They make noise.","They sleep a lot."], a:0},
+            {q:"What is the main idea?", o:["Bees are scary.","Bees do an important job.","Hives are big."], a:1} ] },
+      { t:"The Road Trip", sc:["🚗","⛰️","🌿"], text:"Last week, Faisal's family drove from Riyadh to Abha. The road was long, so they left early in the morning. On the way, they stopped to eat and to rest. As they got closer to Abha, the air became cool and the hills were green. Faisal said it felt like a different world. They stayed for three days and visited many beautiful places.",
+        q:[ {q:"Where did the family drive to?", o:["Jeddah","Abha","Dammam"], a:1},
+            {q:"When did they leave?", o:["early in the morning","at night","at noon"], a:0},
+            {q:"What was the weather like in Abha?", o:["hot","cool","snowy"], a:1},
+            {q:"How long did they stay?", o:["one day","three days","a month"], a:1} ] }
     ],
-    sight: ["always","around","because","been","before","best","both","buy","call","does","first","found","goes","right","which","write"],
-    hfw: ["high","near","add","food","between","own","below","country","plant","last","school","father","keep","tree","never","start"]
+    sight: ["always","around","because","been","before","best","both","buy","call","does","first","found","goes","right","which","write","fast","gave","green","pull","read","sing","sleep","these"],
+    hfw: ["high","near","add","food","between","own","below","country","plant","last","school","father","keep","tree","never","start","earth","eyes","face","farm","group","hear","road","wait"]
   },
   G4: {
     focus: "R-controlled vowels & diphthongs (ar, er, ir, or, ur, ou, ow, oi, oy)",
     stories: [
-      { t:"The Brown Owl", text:["Deep in the forest lived a brown owl named Oscar.","Every night, Oscar sat on a tall branch and looked around.","He could see far and hear the smallest sound.","One night, he heard a soft cry.","A little mouse was lost and scared.","Oscar flew down and showed the mouse the way home.","From that night on, the mouse and the owl were good friends."] },
-      { t:"Fern's Garden", text:["Fern wanted a garden of her own.","She found a corner of the yard with dark, soft dirt.","She turned the soil and planted carrots, corn, and herbs.","Every morning, she poured water on her garden.","Birds chirped as she worked.","By the end of summer, Fern had a basket full of vegetables to share with her family."] }
+      { t:"The Brown Owl", sc:["🦉","🌙","🐭","🌲"], text:["Deep in the forest lived a brown owl named Oscar.","Every night, Oscar sat on a tall branch and looked around.","He could see far and hear the smallest sound.","One night, he heard a soft cry.","A little mouse was lost and scared.","Oscar flew down and showed the mouse the way home.","From that night on, the mouse and the owl were good friends."] },
+      { t:"Fern's Garden", sc:["👩‍🌾","🥕","🌽","🐦"], text:["Fern wanted a garden of her own.","She found a corner of the yard with dark, soft dirt.","She turned the soil and planted carrots, corn, and herbs.","Every morning, she poured water on her garden.","Birds chirped as she worked.","By the end of summer, Fern had a basket full of vegetables to share with her family."] },
+      { t:"The Storm", sc:["⛈️","🌩️","🔦","🏠"], text:["Dark clouds rolled over the town in the afternoon.","Thunder roared, and the wind began to howl.","Nora and her brother ran around the house closing the windows.","The power went out, so they found a flashlight.","They sat on the floor and told stories by its light.","By morning, the storm was over and the birds were singing again."] },
+      { t:"Turtle's Journey", sc:["🐢","🌙","🌊","🦀"], text:["A sea turtle hatched from her egg on a warm, sandy shore.","She was smaller than a cookie, but she knew what to do.","She turned toward the moonlight shining on the water.","Crabs and birds were around, so she hurried.","At last, she felt the cool waves under her flippers.","Her long journey across the ocean had just begun."] },
+      { t:"The Coin Collector", sc:["🪙","🔍","👧","🏛️"], text:["Mr. Joyce owned a small shop in the corner of the market.","He collected old coins from around the world.","One day, a girl named Joy brought him a strange silver coin.","Mr. Joyce studied it with a magnifying glass.","It was more than three hundred years old!","Joy decided to give it to the town museum so everyone could enjoy it."] },
+      { t:"Summer on the Farm", sc:["🐓","🐴","🐄","🌅"], text:["Arthur spent his first summer on his uncle's farm.","He woke up early to the sound of a loud rooster.","He learned to feed the horses and milk the cows.","The work was hard, and his arms hurt at first.","But each evening, he watched the sun set over the fields.","By the end of the summer, Arthur didn't want to leave."] }
     ],
     comp: [
-      { t:"Camels", text:"Camels are amazing desert animals. They can walk for days without drinking water. A camel's hump stores fat, not water. The body uses this fat for energy when food is hard to find. Camels have long eyelashes that protect their eyes from sand. Their wide feet help them walk on soft sand without sinking. For thousands of years, people in Arabia have used camels for travel, milk, and wool.",
+      { t:"Camels", sc:["🐪","🏜️","🌴"], text:"Camels are amazing desert animals. They can walk for days without drinking water. A camel's hump stores fat, not water. The body uses this fat for energy when food is hard to find. Camels have long eyelashes that protect their eyes from sand. Their wide feet help them walk on soft sand without sinking. For thousands of years, people in Arabia have used camels for travel, milk, and wool.",
         q:[ {q:"What does a camel's hump store?", o:["water","fat","sand"], a:1},
             {q:"Why do camels have long eyelashes?", o:["to look pretty","to protect their eyes from sand","to help them sleep"], a:1},
             {q:"How do wide feet help camels?", o:["They run faster.","They don't sink in the sand.","They can swim."], a:1},
-            {q:"What have people used camels for?", o:["travel, milk, and wool","flying","fishing"], a:0} ] }
+            {q:"What have people used camels for?", o:["travel, milk, and wool","flying","fishing"], a:0} ] },
+      { t:"The Date Palm", sc:["🌴","🧺","☀️"], text:"The date palm is one of the most important trees in Saudi Arabia. It can grow in hot, dry places where few other plants survive. A single tree can produce more than one hundred kilograms of dates each year. Dates are sweet and full of energy, vitamins, and fiber. In the past, people also used the leaves to make baskets and mats, and the trunk to build roofs. Today, the date palm is still a symbol of generosity and good life.",
+        q:[ {q:"Where can date palms grow?", o:["in hot, dry places","only in cold places","under water"], a:0},
+            {q:"How many kilograms of dates can one tree produce?", o:["about ten","more than one hundred","one"], a:1},
+            {q:"What did people make from the leaves?", o:["baskets and mats","shoes","cars"], a:0},
+            {q:"What does the date palm stand for?", o:["anger","generosity and good life","winter"], a:1} ] },
+      { t:"How Owls Hunt", sc:["🦉","🌙","🐭"], text:"Owls are birds that hunt at night. Their large eyes help them see in very dim light. Owls can also turn their heads almost all the way around, which helps them look for food without moving their bodies. Their feathers are soft, so they fly almost without a sound. This allows them to surprise mice and insects. Owls also have excellent hearing, and some can find food just by listening.",
+        q:[ {q:"When do owls hunt?", o:["in the morning","at night","at noon"], a:1},
+            {q:"Why can owls fly quietly?", o:["Their feathers are soft.","They are small.","They fly slowly."], a:0},
+            {q:"What helps owls find food in the dark?", o:["big eyes and great hearing","a loud voice","long legs"], a:0},
+            {q:"What is this text mostly about?", o:["how owls hunt","how to build a nest","why owls sleep"], a:0} ] }
     ],
-    sight: ["about","better","bring","carry","clean","done","draw","drink","eight","fall","far","full","grow","hold","hurt","light"],
-    hfw: ["story","saw","left","don't","few","while","along","might","close","something","seem","next","hard","open","example","begin"]
+    sight: ["about","better","bring","carry","clean","done","draw","drink","eight","fall","far","full","grow","hold","hurt","light","kind","laugh","myself","only","pick","seven","show","together"],
+    hfw: ["story","saw","left","don't","few","while","along","might","close","something","seem","next","hard","open","example","begin","ground","learn","morning","person","turn","world","girl","short"]
   },
   G5: {
     focus: "Multisyllable words, prefixes & suffixes",
     stories: [
-      { t:"The Unexpected Visitor", text:["On a quiet afternoon, Lina heard a gentle tapping at the window.","She looked outside and was surprised to see a colorful parrot.","The parrot seemed tired and hungry.","Carefully, Lina opened the window and offered it some seeds.","The bird ate quickly and then repeated, thank you, thank you!","Lina laughed.","Later, she discovered that the parrot belonged to her neighbor, who was overjoyed to have it back."] },
-      { t:"The Science Fair", text:["Omar was nervous about the science fair.","His project was a homemade volcano that actually erupted.","He practiced his explanation again and again.","On the big day, the judges listened carefully.","When the volcano bubbled over, everyone cheered.","Omar did not win first place, but he felt proud and confident.","He learned that preparation makes a real difference."] }
+      { t:"The Unexpected Visitor", sc:["🦜","🪟","👧","🌰"], text:["On a quiet afternoon, Lina heard a gentle tapping at the window.","She looked outside and was surprised to see a colorful parrot.","The parrot seemed tired and hungry.","Carefully, Lina opened the window and offered it some seeds.","The bird ate quickly and then repeated, thank you, thank you!","Lina laughed.","Later, she discovered that the parrot belonged to her neighbor, who was overjoyed to have it back."] },
+      { t:"The Science Fair", sc:["🌋","👦","🏅","🧪"], text:["Omar was nervous about the science fair.","His project was a homemade volcano that actually erupted.","He practiced his explanation again and again.","On the big day, the judges listened carefully.","When the volcano bubbled over, everyone cheered.","Omar did not win first place, but he felt proud and confident.","He learned that preparation makes a real difference."] },
+      { t:"The Lost Map", sc:["🗺️","📦","✉️","🔦"], text:["While cleaning the attic, Sami discovered a dusty wooden box.","Inside was an old, hand-drawn map of his neighborhood.","A red X marked a spot near the ancient well behind the old market.","Curious, Sami and his cousin followed the map carefully.","Beneath a loose stone, they uncovered a small metal tin.","Inside were letters written by their great-grandfather many decades ago.","The real treasure, they realized, was their family's history."] },
+      { t:"The Helpful Robot", sc:["🤖","♻️","👧","🏆"], text:["For the school technology competition, Huda designed a small robot.","Its job was to sort recyclable materials automatically.","At first, the robot kept dropping the bottles.","Huda patiently adjusted the motors and rewrote the program.","After many attempts, the robot finally worked perfectly.","The judges were impressed by her creativity and determination.","Huda learned that every mistake is an opportunity to improve."] },
+      { t:"The Kind Stranger", sc:["🌧️","🚲","👴","🚗"], text:["It was raining heavily when Ahmed's bicycle tire went flat.","He stood under a tree, uncomfortable and unsure what to do.","An elderly neighbor stopped his car and offered to help.","Together, they lifted the bicycle into the trunk.","The man drove Ahmed safely home and refused to accept anything in return.","Ahmed promised himself that he would always help others in need.","Kindness, he realized, is something you pass on."] },
+      { t:"Journey to the Stars", sc:["🔭","🚀","👩‍🚀","✨"], text:["Reem had always dreamed of becoming an astronaut.","Every night, she studied the stars through her telescope.","She read books about planets, rockets, and gravity.","Her teacher encouraged her to join the astronomy club.","There, she learned that the light from some stars takes thousands of years to reach Earth.","Reem felt incredibly small, yet strangely powerful.","She knew that one day she would explore the universe."] }
     ],
     comp: [
-      { t:"Why Recycling Matters", text:"Every year, people throw away millions of tons of plastic. Much of it ends up in landfills or in the ocean, where it can harm sea animals. Recycling helps solve this problem. When we recycle, used materials are collected, cleaned, and turned into new products. For example, plastic bottles can become clothing, bags, or even playground equipment. Recycling saves energy and reduces pollution. Everyone can help by sorting their waste and choosing reusable items.",
+      { t:"Why Recycling Matters", sc:["♻️","🧴","🌍"], text:"Every year, people throw away millions of tons of plastic. Much of it ends up in landfills or in the ocean, where it can harm sea animals. Recycling helps solve this problem. When we recycle, used materials are collected, cleaned, and turned into new products. For example, plastic bottles can become clothing, bags, or even playground equipment. Recycling saves energy and reduces pollution. Everyone can help by sorting their waste and choosing reusable items.",
         q:[ {q:"Where does much of the plastic end up?", o:["in landfills or the ocean","in the sky","in schools"], a:0},
             {q:"What can plastic bottles become?", o:["food","clothing","glass"], a:1},
             {q:"What is the main idea?", o:["Plastic is very useful.","Recycling helps protect our planet.","Oceans are very big."], a:1},
-            {q:"What does the word reusable mean?", o:["can be used again","cannot be used","is broken"], a:0} ] }
+            {q:"What does the word reusable mean?", o:["can be used again","cannot be used","is broken"], a:0} ] },
+      { t:"The Power of Sleep", sc:["😴","🛏️","🌙"], text:"Sleep is not just a time to rest. While we sleep, our brains organize the information we learned during the day. Our bodies also repair muscles and grow. Children between six and twelve years old need about nine to twelve hours of sleep each night. Without enough sleep, it becomes difficult to concentrate, remember, and control emotions. Experts recommend turning off screens an hour before bedtime, because bright light can make it harder to fall asleep.",
+        q:[ {q:"How many hours of sleep do children need?", o:["four to five","nine to twelve","fifteen"], a:1},
+            {q:"What does the brain do during sleep?", o:["It stops working.","It organizes information.","It forgets everything."], a:1},
+            {q:"Why should we turn off screens before bed?", o:["Bright light makes it hard to sleep.","Screens are expensive.","It saves water."], a:0},
+            {q:"What does concentrate mean?", o:["to focus","to sleep","to run"], a:0} ] },
+      { t:"The Story of Paper", sc:["📜","🏛️","📚"], text:"Before paper was invented, people wrote on stone, clay, animal skins, and leaves. About two thousand years ago, people in China discovered how to make paper from tree bark and old cloth. Over hundreds of years, the knowledge spread to the Islamic world. Cities like Baghdad built paper mills, and books became much more common. Libraries grew, and knowledge spread faster than ever before. Today, we use paper every day, but we should recycle it to protect our forests.",
+        q:[ {q:"Where was paper first made?", o:["in China","in Egypt","in Spain"], a:0},
+            {q:"What did people write on before paper?", o:["stone, clay, and skins","glass","plastic"], a:0},
+            {q:"Which city built paper mills?", o:["Paris","Baghdad","London"], a:1},
+            {q:"Why should we recycle paper?", o:["to protect forests","to make it heavier","to sell it"], a:0} ] }
     ],
-    sight: ["although","through","thought","enough","whether","special","during","different","important","usually","especially","probably","certain","toward","finally","answer"],
-    hfw: ["body","music","color","stand","question","area","problem","complete","room","knew","since","ever","piece","told","usually","friends"]
+    sight: ["although","through","thought","enough","whether","special","during","different","important","usually","especially","probably","certain","toward","finally","answer","brought","caught","course","daughter","either","neither","ought","sure"],
+    hfw: ["body","music","color","stand","question","area","problem","complete","room","knew","since","ever","piece","told","usually","friends","decided","machine","produce","notice","material","object","surface","simple"]
   },
   G6: {
     focus: "Complex texts & academic vocabulary",
     stories: [
-      { t:"The Desert Fox", text:["The fennec fox is the smallest fox in the world, yet it survives in one of the harshest places on Earth.","Its enormous ears, which can grow up to fifteen centimeters long, release body heat and help it stay cool.","Those same ears allow it to hear insects moving beneath the sand.","Thick fur on its paws protects them from the burning ground.","Because the desert is so hot, the fennec fox is nocturnal, which means it hunts at night and rests in underground dens during the day.","Its remarkable adaptations show how animals can thrive even in extreme environments."] },
-      { t:"The Courage to Try", text:["Yousef had always loved soccer, but he was afraid to try out for the school team.","He worried that the other players were faster and more skilled.","His older sister reminded him that every great player once started as a beginner.","Yousef began practicing every afternoon, even when he felt exhausted.","On the day of the tryouts, his heart was pounding, but he played with determination.","When the coach announced the final team, Yousef heard his name.","He realized that courage is not the absence of fear, but the decision to try anyway."] }
+      { t:"The Desert Fox", sc:["🦊","🏜️","🌙","🦗"], text:["The fennec fox is the smallest fox in the world, yet it survives in one of the harshest places on Earth.","Its enormous ears, which can grow up to fifteen centimeters long, release body heat and help it stay cool.","Those same ears allow it to hear insects moving beneath the sand.","Thick fur on its paws protects them from the burning ground.","Because the desert is so hot, the fennec fox is nocturnal, which means it hunts at night and rests in underground dens during the day.","Its remarkable adaptations show how animals can thrive even in extreme environments."] },
+      { t:"The Courage to Try", sc:["⚽","🧒","🥅","🏆"], text:["Yousef had always loved soccer, but he was afraid to try out for the school team.","He worried that the other players were faster and more skilled.","His older sister reminded him that every great player once started as a beginner.","Yousef began practicing every afternoon, even when he felt exhausted.","On the day of the tryouts, his heart was pounding, but he played with determination.","When the coach announced the final team, Yousef heard his name.","He realized that courage is not the absence of fear, but the decision to try anyway."] },
+      { t:"The Lighthouse Keeper", sc:["🗼","🌊","🚤","🌩️"], text:["For forty years, Salem had kept the lighthouse on the rocky coast burning every night.","Sailors depended on its beam to guide them safely past the dangerous reef.","When a modern automatic light was installed, Salem feared he was no longer needed.","However, on the night the power failed during a violent storm, the new light went dark.","Salem climbed the narrow stairs and lit the old lantern by hand.","A fishing boat, struggling against the waves, saw the glow and reached the harbor safely.","Salem understood that experience and dedication can never be completely replaced."] },
+      { t:"Coral Reefs of the Red Sea", sc:["🪸","🐠","🌊","🔬"], text:["The Red Sea is home to some of the most spectacular coral reefs on the planet.","Although corals look like colorful rocks or plants, they are actually colonies of tiny animals.","These reefs provide shelter and food for thousands of species of fish.","Remarkably, many Red Sea corals can tolerate warmer water than corals in other regions.","Scientists study them to understand how reefs might survive a changing climate.","Protecting these underwater ecosystems is essential for the future of our oceans."] },
+      { t:"The Debate", sc:["🎤","📚","👧","🏅"], text:["Lama was chosen to represent her class in the school debate competition.","The topic was whether homework should be banned.","She researched carefully, collecting evidence from articles and surveys.","During the debate, her opponent made a strong argument she had not expected.","Instead of panicking, Lama listened closely and responded calmly with facts.","Although her team finished second, the judges praised her respectful and logical style.","Lama discovered that listening is just as important as speaking."] },
+      { t:"Ibn al-Haytham and the Light", sc:["💡","👁️","📖","🔬"], text:["More than a thousand years ago, a scholar named Ibn al-Haytham asked a simple question: how do we see?","Many people believed that our eyes sent out rays toward objects.","Ibn al-Haytham tested this idea through careful experiments with light in a dark room.","He showed that light travels from objects into our eyes.","His Book of Optics influenced scientists for centuries.","Today, he is often called one of the pioneers of the scientific method.","His story reminds us that asking questions is the first step to discovery."] }
     ],
     comp: [
-      { t:"Saving Water", text:"Water covers most of our planet, yet only a small percentage of it is fresh water that people can use. In dry countries like Saudi Arabia, fresh water is especially precious. Many cities depend on desalination plants, which remove salt from seawater. This process is expensive and uses a large amount of energy. That is why conserving water is so important. Simple habits, such as turning off the tap while brushing your teeth, fixing leaks, and taking shorter showers, can save thousands of liters each year. If everyone makes small changes, together we can protect this valuable resource for future generations.",
+      { t:"Saving Water", sc:["💧","🚰","🌊"], text:"Water covers most of our planet, yet only a small percentage of it is fresh water that people can use. In dry countries like Saudi Arabia, fresh water is especially precious. Many cities depend on desalination plants, which remove salt from seawater. This process is expensive and uses a large amount of energy. That is why conserving water is so important. Simple habits, such as turning off the tap while brushing your teeth, fixing leaks, and taking shorter showers, can save thousands of liters each year. If everyone makes small changes, together we can protect this valuable resource for future generations.",
         q:[ {q:"What does a desalination plant do?", o:["It removes salt from seawater.","It makes rain.","It cleans the air."], a:0},
             {q:"Why is desalination a challenge?", o:["It is expensive and uses a lot of energy.","It is too fast.","It makes water salty."], a:0},
             {q:"Which habit saves water?", o:["leaving the tap on","taking shorter showers","washing the car every day"], a:1},
-            {q:"What is the author's purpose?", o:["to tell a funny story","to persuade readers to save water","to describe a city"], a:1} ] }
+            {q:"What is the author's purpose?", o:["to tell a funny story","to persuade readers to save water","to describe a city"], a:1} ] },
+      { t:"Screen Time", sc:["📱","⏰","⚖️"], text:"Smartphones and tablets have become part of daily life for many young people. These devices offer many benefits: students can research projects, learn new languages, and stay in touch with family. However, spending too much time on screens can lead to problems such as poor sleep, less physical activity, and difficulty concentrating. Some experts suggest a balanced approach, such as setting daily time limits, keeping devices out of bedrooms at night, and choosing educational content. The goal is not to avoid technology completely, but to use it wisely.",
+        q:[ {q:"What is one benefit of devices?", o:["They help students research.","They cause poor sleep.","They stop learning."], a:0},
+            {q:"What problem can too much screen time cause?", o:["better sleep","less physical activity","more exercise"], a:1},
+            {q:"What do experts suggest?", o:["using devices all night","a balanced approach","never using technology"], a:1},
+            {q:"What is the author's main point?", o:["Technology is useless.","Use technology wisely.","Phones are expensive."], a:1} ] },
+      { t:"Greening the Desert", sc:["🌳","🏜️","🌱"], text:"In 2021, Saudi Arabia launched the Saudi Green Initiative. One of its goals is to plant ten billion trees across the country over the coming decades. Trees help reduce dust storms, lower temperatures, and improve air quality. Planting trees in a desert country is challenging because water is scarce, so scientists choose native plants that need little water, such as acacia and ghaf trees. Communities and schools can take part by planting and caring for trees in their areas.",
+        q:[ {q:"How many trees does the initiative aim to plant?", o:["ten million","ten billion","one thousand"], a:1},
+            {q:"How do trees help?", o:["They increase dust storms.","They lower temperatures and improve air.","They use all the water."], a:1},
+            {q:"Why do scientists choose native plants?", o:["They need little water.","They are the tallest.","They grow only in winter."], a:0},
+            {q:"What does scarce mean?", o:["plentiful","limited","dirty"], a:1} ] }
     ],
-    sight: ["analyze","compare","describe","explain","identify","summarize","conclude","evidence","predict","purpose","character","setting","opinion","effect","cause","detail"],
-    hfw: ["knowledge","believe","government","necessary","environment","experience","community","therefore","however","consider","continue","develop","increase","individual","available","success"]
+    sight: ["analyze","compare","describe","explain","identify","summarize","conclude","evidence","predict","purpose","character","setting","opinion","effect","cause","detail","infer","sequence","theme","contrast","fact","argument","clarify","main"],
+    hfw: ["knowledge","believe","government","necessary","environment","experience","community","therefore","however","consider","continue","develop","increase","individual","available","success","significant","particular","opportunity","responsibility","achievement","technology","history","various"]
   }
 };
 
 /* =========================================================
-   📗 المحتوى العربي — مراحل على طريقة نور البيان (بدون صوت)
+   📗 المحتوى العربي — لكل صف مستوياته الخاصة (كل مستوى: كلمات + قصة)
+   KG3 والصف الأول: نور البيان · من الصف الثاني: كلمات وقصص
    ========================================================= */
-const AR = [
-  { t:"الفتحة", note:"كلمات ثلاثية بالفتحة",
-    words:["كَتَبَ","جَلَسَ","فَتَحَ","رَسَمَ","ذَهَبَ","دَخَلَ","خَرَجَ","وَقَفَ","أَكَلَ","سَبَحَ","زَرَعَ","قَفَزَ"],
-    story:{ t:"دَخَلَ وَجَلَسَ", text:["دَخَلَ وَجَلَسَ.","فَتَحَ وَكَتَبَ.","رَسَمَ وَزَرَعَ.","وَقَفَ وَخَرَجَ.","ذَهَبَ وَسَبَحَ."] } },
-  { t:"الكسرة والضمة", note:"كلمات ثلاثية بالكسرة والضمة",
-    words:["لَعِبَ","فَرِحَ","شَرِبَ","سَمِعَ","فَهِمَ","رَكِبَ","حَزِنَ","كَبُرَ","صَغُرَ","عُمَرُ","كُتُبُ","قَمَرُ"],
-    story:{ t:"عُمَرُ", text:["لَعِبَ عُمَرُ.","فَرِحَ عُمَرُ.","شَرِبَ عُمَرُ.","رَكِبَ عُمَرُ فَرَسَهُ.","سَمِعَ عُمَرُ وَفَهِمَ."] } },
-  { t:"المدود (ا - و - ي)", note:"المد بالألف والواو والياء",
-    words:["نَامَ","قَامَ","قَالَ","طَارَ","سَارَ","جَاعَ","نُورُ","تُوتُ","سُورُ","تِينُ","دِيكُ","فِيلُ"],
-    story:{ t:"سَامِي", text:["نَامَ سَامِي.","قَامَ سَامِي.","جَاعَ سَامِي.","قَالَ: يَا مَامَا!","أَكَلَ سَامِي وَفَرِحَ."] } },
-  { t:"السكون", note:"كلمات فيها حرف ساكن",
-    words:["مِنْ","عَنْ","يَلْعَبُ","يَكْتُبُ","يَرْسُمُ","يَشْرَبُ","يَفْتَحُ","يَقْرَأُ","أَحْمَدُ","مَكْتَبُ","مَسْجِدُ","بَحْرُ"],
-    story:{ t:"أَحْمَدُ يَلْعَبُ", text:["أَحْمَدُ يَلْعَبُ فِي الْحَدِيقَةِ.","يَرْكُضُ أَحْمَدُ وَيَقْفِزُ.","يَرْجِعُ أَحْمَدُ إِلَى الْبَيْتِ.","يَفْتَحُ أَحْمَدُ الْكِتَابَ وَيَقْرَأُ.","يَفْرَحُ أَحْمَدُ بِالْكِتَابِ."] } },
-  { t:"الشدة والتنوين", note:"كلمات بالشدة والتنوين",
-    words:["قِطٌّ","أُمٌّ","جَدٌّ","دُبٌّ","كِتَابٌ","قَلَمٌ","بَيْتٌ","وَرْدَةٌ","شَجَرَةٌ","مُعَلِّمٌ","سُكَّرٌ","بَطَّةٌ"],
-    story:{ t:"مَرْيَمُ وَالْقِطُّ", text:["فِي الصَّبَاحِ ذَهَبَتْ مَرْيَمُ إِلَى الْمَدْرَسَةِ.","رَأَتْ قِطًّا صَغِيرًا.","كَانَ الْقِطُّ جَائِعًا.","أَعْطَتْهُ مَرْيَمُ حَلِيبًا.","فَرِحَ الْقِطُّ كَثِيرًا."] } },
-  { t:"اللام الشمسية والقمرية", note:"ال الشمسية وال القمرية",
-    words:["الشَّمْسُ","الْقَمَرُ","النَّجْمُ","الْبَحْرُ","السَّمَكُ","الْوَلَدُ","الطَّائِرُ","الْكِتَابُ","الرَّمْلُ","الْبَابُ","الدَّرْسُ","الْفِيلُ"],
-    story:{ t:"رِحْلَةٌ إِلَى الْبَحْرِ", text:["ذَهَبَ خَالِدٌ مَعَ أُسْرَتِهِ إِلَى الْبَحْرِ.","كَانَتِ الشَّمْسُ جَمِيلَةً وَالسَّمَاءُ صَافِيَةً.","بَنَى خَالِدٌ بَيْتًا مِنَ الرَّمْلِ.","ثُمَّ سَبَحَ فِي الْمَاءِ مَعَ أَبِيهِ.","رَأَى سَمَكَةً مُلَوَّنَةً تَسْبَحُ.","قَالَ خَالِدٌ: مَا أَجْمَلَ الْبَحْرَ!"] } }
-];
+const AR = {
+  KG3: { title:"نور البيان", sub:"الحركات والمدود خطوة بخطوة", units:[
+    { id:"0", ic:"🔤", t:"الفتحة", note:"كلمات ثلاثية بالفتحة", sc:["🧒","✏️","🌱","🚪"],
+      words:["كَتَبَ","جَلَسَ","فَتَحَ","رَسَمَ","ذَهَبَ","دَخَلَ","خَرَجَ","وَقَفَ","أَكَلَ","سَبَحَ","زَرَعَ","قَفَزَ"],
+      story:{ t:"دَخَلَ وَجَلَسَ", text:["دَخَلَ وَجَلَسَ.","فَتَحَ وَكَتَبَ.","رَسَمَ وَزَرَعَ.","وَقَفَ وَخَرَجَ.","ذَهَبَ وَسَبَحَ."] } },
+    { id:"1", ic:"✨", t:"الكسرة والضمة", note:"كلمات ثلاثية بالكسرة والضمة", sc:["👦","🐎","🥛","😊"],
+      words:["لَعِبَ","فَرِحَ","شَرِبَ","سَمِعَ","فَهِمَ","رَكِبَ","حَزِنَ","كَبُرَ","صَغُرَ","عُمَرُ","كُتُبُ","قَمَرُ"],
+      story:{ t:"عُمَرُ", text:["لَعِبَ عُمَرُ.","فَرِحَ عُمَرُ.","شَرِبَ عُمَرُ.","رَكِبَ عُمَرُ فَرَسَهُ.","سَمِعَ عُمَرُ وَفَهِمَ."] } },
+    { id:"2", ic:"🎈", t:"المدود (ا - و - ي)", note:"المد بالألف والواو والياء", sc:["😴","🛏️","🍽️","👩"],
+      words:["نَامَ","قَامَ","قَالَ","طَارَ","سَارَ","جَاعَ","نُورُ","تُوتُ","سُورُ","تِينُ","دِيكُ","فِيلُ"],
+      story:{ t:"سَامِي", text:["نَامَ سَامِي.","قَامَ سَامِي.","جَاعَ سَامِي.","قَالَ: يَا مَامَا!","أَكَلَ سَامِي وَفَرِحَ."] } }
+  ]},
+  G1: { title:"نور البيان", sub:"السكون والشدة والتنوين وأل", units:[
+    { id:"3", ic:"⭐", t:"السكون", note:"كلمات فيها حرف ساكن", sc:["👦","🌳","🏠","📖"],
+      words:["مِنْ","عَنْ","يَلْعَبُ","يَكْتُبُ","يَرْسُمُ","يَشْرَبُ","يَفْتَحُ","يَقْرَأُ","أَحْمَدُ","مَكْتَبُ","مَسْجِدُ","بَحْرُ"],
+      story:{ t:"أَحْمَدُ يَلْعَبُ", text:["أَحْمَدُ يَلْعَبُ فِي الْحَدِيقَةِ.","يَرْكُضُ أَحْمَدُ وَيَقْفِزُ.","يَرْجِعُ أَحْمَدُ إِلَى الْبَيْتِ.","يَفْتَحُ أَحْمَدُ الْكِتَابَ وَيَقْرَأُ.","يَفْرَحُ أَحْمَدُ بِالْكِتَابِ."] } },
+    { id:"4", ic:"🌟", t:"الشدة والتنوين", note:"كلمات بالشدة والتنوين", sc:["👧","🐱","🥛","🏫"],
+      words:["قِطٌّ","أُمٌّ","جَدٌّ","دُبٌّ","كِتَابٌ","قَلَمٌ","بَيْتٌ","وَرْدَةٌ","شَجَرَةٌ","مُعَلِّمٌ","سُكَّرٌ","بَطَّةٌ"],
+      story:{ t:"مَرْيَمُ وَالْقِطُّ", text:["فِي الصَّبَاحِ ذَهَبَتْ مَرْيَمُ إِلَى الْمَدْرَسَةِ.","رَأَتْ قِطًّا صَغِيرًا.","كَانَ الْقِطُّ جَائِعًا.","أَعْطَتْهُ مَرْيَمُ حَلِيبًا.","فَرِحَ الْقِطُّ كَثِيرًا."] } },
+    { id:"5", ic:"☀️", t:"اللام الشمسية والقمرية", note:"ال الشمسية وال القمرية", sc:["🏖️","🐠","☀️","🏰"],
+      words:["الشَّمْسُ","الْقَمَرُ","النَّجْمُ","الْبَحْرُ","السَّمَكُ","الْوَلَدُ","الطَّائِرُ","الْكِتَابُ","الرَّمْلُ","الْبَابُ","الدَّرْسُ","الْفِيلُ"],
+      story:{ t:"رِحْلَةٌ إِلَى الْبَحْرِ", text:["ذَهَبَ خَالِدٌ مَعَ أُسْرَتِهِ إِلَى الْبَحْرِ.","كَانَتِ الشَّمْسُ جَمِيلَةً وَالسَّمَاءُ صَافِيَةً.","بَنَى خَالِدٌ بَيْتًا مِنَ الرَّمْلِ.","ثُمَّ سَبَحَ فِي الْمَاءِ مَعَ أَبِيهِ.","رَأَى سَمَكَةً مُلَوَّنَةً تَسْبَحُ.","قَالَ خَالِدٌ: مَا أَجْمَلَ الْبَحْرَ!"] } }
+  ]},
+  G2: { title:"كلمات وقصص", sub:"التاء والهمزة والفعل المضارع", units:[
+    { id:"G2-0", ic:"🍎", t:"التاء المربوطة والمفتوحة", note:"ـة و ـت في آخر الكلمة", sc:["👧","🍎","🌳","🏡"],
+      words:["مَدْرَسَةٌ","حَدِيقَةٌ","سَيَّارَةٌ","طَاوِلَةٌ","تُفَّاحَةٌ","نَافِذَةٌ","بِنْتٌ","بَيْتٌ","زَيْتٌ","صَوْتٌ","وَقْتٌ","أُخْتٌ"],
+      story:{ t:"تُفَّاحَةُ هِنْدٍ", text:["هِنْدٌ بِنْتٌ صَغِيرَةٌ.","فِي حَدِيقَةِ الْبَيْتِ شَجَرَةُ تُفَّاحٍ.","قَطَفَتْ هِنْدٌ تُفَّاحَةً حَمْرَاءَ.","أَعْطَتْ أُخْتَهَا نِصْفَ التُّفَّاحَةِ.","فَرِحَتِ الْأُخْتُ وَشَكَرَتْ أُخْتَهَا."] } },
+    { id:"G2-1", ic:"🦁", t:"الهمزة", note:"الهمزة في أول الكلمة ووسطها وآخرها", sc:["🦁","🐭","🌳","🕸️"],
+      words:["أَسَدٌ","أَرْنَبٌ","سَأَلَ","رَأْسٌ","بِئْرٌ","ذِئْبٌ","فَأْرٌ","كَأْسٌ","سَمَاءٌ","مَاءٌ","لُؤْلُؤٌ","مُؤْمِنٌ"],
+      story:{ t:"الْأَسَدُ وَالْفَأْرُ", text:["نَامَ الْأَسَدُ تَحْتَ الشَّجَرَةِ.","جَاءَ فَأْرٌ صَغِيرٌ وَلَعِبَ فَوْقَ رَأْسِهِ.","غَضِبَ الْأَسَدُ وَأَمْسَكَ الْفَأْرَ.","قَالَ الْفَأْرُ: اُتْرُكْنِي، وَسَأُسَاعِدُكَ يَوْمًا.","تَرَكَهُ الْأَسَدُ وَضَحِكَ.","وَفِي يَوْمٍ وَقَعَ الْأَسَدُ فِي شَبَكَةٍ، فَقَطَعَهَا الْفَأْرُ بِأَسْنَانِهِ."] } },
+    { id:"G2-2", ic:"🕌", t:"الفعل المضارع", note:"أفعال تبدأ بـ (أ - ن - ي - ت)", sc:["🕌","👦","👴","🍲"],
+      words:["يَذْهَبُ","تَكْتُبُ","نَلْعَبُ","يَسْتَيْقِظُ","يُصَلِّي","تُسَاعِدُ","يَغْسِلُ","تَطْبُخُ","يَزُورُ","نَتَعَلَّمُ","يَرْكُضُ","أَقْرَأُ"],
+      story:{ t:"يَوْمُ الْجُمُعَةِ", text:["يَسْتَيْقِظُ سَعْدٌ مُبَكِّرًا يَوْمَ الْجُمُعَةِ.","يَغْسِلُ وَجْهَهُ وَيَلْبَسُ ثَوْبًا نَظِيفًا.","يَذْهَبُ مَعَ أَبِيهِ إِلَى الْمَسْجِدِ.","بَعْدَ الصَّلَاةِ يَزُورُونَ الْجَدَّ وَالْجَدَّةَ.","تَطْبُخُ الْجَدَّةُ طَعَامًا لَذِيذًا.","يَأْكُلُ الْجَمِيعُ وَيَفْرَحُونَ."] } }
+  ]},
+  G3: { title:"كلمات وقصص", sub:"الضمائر والإشارة والعدد", units:[
+    { id:"G3-0", ic:"👨‍👩‍👧", t:"الضمائر وأسماء الإشارة", note:"هو، هي، نحن، هذا، هذه...", sc:["👨‍⚕️","👩‍🏫","👦","👧"],
+      words:["هُوَ","هِيَ","نَحْنُ","أَنْتَ","أَنْتِ","هُمْ","هَذَا","هَذِهِ","ذَلِكَ","تِلْكَ","هَؤُلَاءِ","الَّذِي"],
+      story:{ t:"هَذِهِ أُسْرَتِي", text:["هَذَا أَبِي، هُوَ طَبِيبٌ يُعَالِجُ الْمَرْضَى.","وَهَذِهِ أُمِّي، هِيَ مُعَلِّمَةٌ تُحِبُّ طَالِبَاتِهَا.","وَذَلِكَ أَخِي الْكَبِيرُ، يَدْرُسُ فِي الْجَامِعَةِ.","وَتِلْكَ أُخْتِي الصَّغِيرَةُ، تُحِبُّ الرَّسْمَ.","نَحْنُ أُسْرَةٌ سَعِيدَةٌ نَتَعَاوَنُ دَائِمًا."] } },
+    { id:"G3-1", ic:"📚", t:"المفرد والمثنى والجمع", note:"طالب – طالبان – طلاب", sc:["📚","👦","👦","🦒"],
+      words:["طَالِبٌ","طَالِبَانِ","طُلَّابٌ","مُعَلِّمَةٌ","مُعَلِّمَتَانِ","مُعَلِّمَاتٌ","كِتَابٌ","كِتَابَانِ","كُتُبٌ","شَجَرَةٌ","شَجَرَتَانِ","أَشْجَارٌ"],
+      story:{ t:"فِي الْمَكْتَبَةِ", text:["ذَهَبَ طَالِبَانِ إِلَى مَكْتَبَةِ الْمَدْرَسَةِ.","وَجَدَا كُتُبًا كَثِيرَةً عَلَى الرُّفُوفِ.","اخْتَارَ كُلُّ طَالِبٍ كِتَابًا عَنِ الْحَيَوَانَاتِ.","سَاعَدَهُمَا أَمِينُ الْمَكْتَبَةِ.","جَلَسَ الطَّالِبَانِ وَقَرَآ بِهُدُوءٍ.","قَالَا: الْقِرَاءَةُ مُمْتِعَةٌ وَمُفِيدَةٌ!"] } },
+    { id:"G3-2", ic:"🌴", t:"كلمات من بيئتنا", note:"النخلة والمزرعة", sc:["🌴","👴","🧺","☀️"],
+      words:["نَخْلَةٌ","تَمْرٌ","جِذْعٌ","سَعَفٌ","مَزْرَعَةٌ","فَلَّاحٌ","يَسْقِي","ظِلٌّ","حُلْوٌ","كَرِيمٌ","صَحْرَاءُ","عَطْشَانُ"],
+      story:{ t:"النَّخْلَةُ الْكَرِيمَةُ", text:["فِي مَزْرَعَةِ جَدِّي نَخْلَةٌ طَوِيلَةٌ.","يَسْقِيهَا جَدِّي كُلَّ صَبَاحٍ.","فِي الصَّيْفِ تُعْطِينَا تَمْرًا حُلْوًا.","وَنَجْلِسُ فِي ظِلِّهَا وَقْتَ الْحَرِّ.","يَصْنَعُ جَدِّي مِنْ سَعَفِهَا سِلَالًا جَمِيلَةً.","قَالَ جَدِّي: النَّخْلَةُ كَرِيمَةٌ، تُعْطِي وَلَا تَأْخُذُ."] } }
+  ]},
+  G4: { title:"كلمات وقصص", sub:"قيم ووطن وعلوم", units:[
+    { id:"G4-0", ic:"💎", t:"الصفات الحميدة", note:"كلمات تصف الأخلاق", sc:["⚽","🪟","👦","👨"],
+      words:["شجاع","أمين","صادق","نشيط","كريم","صبور","مجتهد","متعاون","نظيف","مهذب","رحيم","مخلص"],
+      story:{ t:"الصدق منجاة", text:["كان يوسف يلعب بالكرة في فناء البيت.","ضرب الكرة بقوة فكسرت زجاج النافذة.","خاف يوسف كثيرًا، وفكر أن يختبئ.","لكنه تذكر أن الصدق خلق جميل.","ذهب إلى أبيه وقال: أنا آسف يا أبي، أنا كسرت النافذة.","ابتسم الأب وقال: صدقك أغلى عندي من الزجاج."] } },
+    { id:"G4-1", ic:"🇸🇦", t:"وطني", note:"كلمات عن الوطن والتراث", sc:["🏰","🇸🇦","👧","📸"],
+      words:["وطن","علم","الرياض","صحراء","جبال","بحر","مدينة","قرية","شعب","تراث","احتفال","خريطة"],
+      story:{ t:"رحلة إلى الدرعية", text:["زارت مها مع أسرتها حي الطريف في الدرعية.","رأت بيوتًا قديمة مبنية من الطين.","شرح لها أبوها أن الدرعية كانت عاصمة الدولة السعودية الأولى.","التقطت مها صورًا جميلة للأسوار والأبراج.","في المساء شاهدوا عرضًا للتراث والعرضة السعودية.","قالت مها: أنا فخورة بتاريخ وطني."] } },
+    { id:"G4-2", ic:"🚀", t:"الفضاء", note:"كلمات علمية", sc:["🔭","🌙","🚀","👦"],
+      words:["كوكب","الشمس","القمر","نجوم","فضاء","جاذبية","صاروخ","تلسكوب","الأرض","مدار","كسوف","مجرة"],
+      story:{ t:"حلم ريان", text:["يحب ريان النظر إلى السماء في الليل.","يرى القمر والنجوم اللامعة.","قرأ أن الأرض تدور حول الشمس مرة كل سنة.","وقرأ أن رواد فضاء سعوديين سافروا إلى الفضاء.","قرر ريان أن يدرس العلوم بجد.","يحلم أن يصبح رائد فضاء ويرى الأرض من بعيد."] } }
+  ]},
+  G5: { title:"كلمات وقصص", sub:"صحة وبيئة وعلماء", units:[
+    { id:"G5-0", ic:"🥗", t:"صحتي", note:"كلمات عن الغذاء والنشاط", sc:["🥗","🍎","💧","🏃‍♀️"],
+      words:["غذاء","رياضة","فيتامينات","بروتين","مناعة","نشاط","نوم","ماء","خضروات","فواكه","عادات","توازن"],
+      story:{ t:"طبق متوازن", text:["كانت سارة تحب الحلوى والمشروبات الغازية كثيرًا.","لاحظت أنها تتعب بسرعة في حصة الرياضة.","شرحت لها المعلمة أهمية الغذاء المتوازن.","بدأت سارة تأكل الخضروات والفواكه وتشرب الماء.","وصارت تنام مبكرًا كل ليلة.","بعد شهر شعرت بالنشاط، وفازت في سباق المدرسة."] } },
+    { id:"G5-1", ic:"♻️", t:"بيئتي", note:"كلمات عن حماية البيئة", sc:["♻️","🌱","🏫","🏆"],
+      words:["تلوث","نفايات","تدوير","بيئة","طاقة","شمسية","ترشيد","غابات","كائنات","محمية","تصحر","مستدامة"],
+      story:{ t:"نادي البيئة", text:["أسس طلاب الصف الخامس نادي البيئة في المدرسة.","وضعوا حاويات ملونة لفرز الورق والبلاستيك.","وزرعوا شتلات صغيرة حول الملعب.","وكتبوا لوحات تدعو إلى ترشيد الماء والكهرباء.","بعد أشهر، أصبحت المدرسة أنظف وأجمل.","وحصل النادي على جائزة المدرسة الخضراء."] } },
+    { id:"G5-2", ic:"📜", t:"علماء المسلمين", note:"كلمات عن العلم والاكتشاف", sc:["📜","🧮","🏛️","💻"],
+      words:["عالم","اكتشاف","تجربة","مخطوطة","طب","فلك","رياضيات","كيمياء","الجبر","مرصد","مكتبة","ترجمة"],
+      story:{ t:"الخوارزمي", text:["عاش الخوارزمي في بغداد قبل أكثر من ألف عام.","كان يعمل في بيت الحكمة مع كثير من العلماء.","ألّف كتابًا مشهورًا في علم الجبر.","وانتقلت أفكاره إلى أوروبا وتُرجمت كتبه.","ومن اسمه جاءت كلمة الخوارزمية التي تستخدمها الحواسيب اليوم.","علّمنا الخوارزمي أن العلم ينفع الناس في كل زمان."] } }
+  ]},
+  G6: { title:"كلمات وقصص", sub:"قيم ورؤية وطبيعة", units:[
+    { id:"G6-0", ic:"🤝", t:"القيم", note:"كلمات عن الأخلاق والعمل", sc:["👥","📊","🤝","⭐"],
+      words:["مسؤولية","أمانة","احترام","تسامح","إيثار","عدل","تعاون","إتقان","مثابرة","تواضع","وفاء","انتماء"],
+      story:{ t:"قوة الفريق", text:["كُلّف فريق من أربعة طلاب بإعداد مشروع عن تاريخ المملكة.","في البداية اختلفوا في توزيع المهام، وكاد المشروع يتوقف.","اقترح فهد أن يختار كل طالب الجزء الذي يتقنه.","فتولى أحدهم البحث، والثاني التصميم، والثالث الكتابة، والرابع العرض.","بالتعاون والاحترام أنجزوا مشروعًا رائعًا نال إعجاب الجميع.","أدرك الطلاب أن قوة الفريق في تكامل أفراده."] } },
+    { id:"G6-1", ic:"🏙️", t:"رؤية 2030", note:"كلمات عن المستقبل والتنمية", sc:["🏙️","🇸🇦","⚡","🎓"],
+      words:["رؤية","تنمية","اقتصاد","سياحة","ابتكار","تقنية","استثمار","شباب","طموح","مشروع","مستقبل","تحول"],
+      story:{ t:"مدينة المستقبل", text:["تحدث المعلم مع طلابه عن رؤية المملكة 2030.","شرح أن الرؤية تهدف إلى تنويع الاقتصاد وعدم الاعتماد على النفط وحده.","ذكر أمثلة على مشروعات كبرى في السياحة والترفيه والطاقة المتجددة.","سأل الطلاب: كيف تشاركون في بناء المستقبل؟","أجاب أحدهم: بالتعلم والاجتهاد والابتكار.","ابتسم المعلم وقال: أنتم شباب الوطن وأمله."] } },
+    { id:"G6-2", ic:"🪸", t:"البحر الأحمر", note:"كلمات عن البحر وكائناته", sc:["🤿","🪸","🐢","🐠"],
+      words:["شعاب","مرجان","أسماك","ساحل","أمواج","غوص","جزيرة","سلحفاة","محار","لؤلؤ","تيار","أعماق"],
+      story:{ t:"رحلة غوص", text:["سافر ماجد مع أسرته إلى شاطئ على البحر الأحمر.","ارتدى نظارة الغوص مع مدربه المحترف.","رأى تحت الماء عالمًا مدهشًا من الشعاب المرجانية الملونة.","سبحت حوله أسماك صفراء وزرقاء، ومرت سلحفاة بهدوء.","أخبره المدرب أن المرجان كائنات حية يجب ألا نلمسها أو نكسرها.","خرج ماجد من الماء وهو يقول: سأحافظ على هذا الكنز دائمًا."] } }
+  ]}
+};
 
 const BADGES = [
   { min:0,    ic:"🌱", ar:"قارئ مبتدئ",  en:"Starter" },
@@ -670,22 +835,10 @@ const BADGES = [
 ];
 
 /* =========================================================
-   🎨 صور القصص الكرتونية المتحركة + التشجيع
+   🎨 الصور الكرتونية المتحركة + التشجيع
    ========================================================= */
 const BGS = ["#ffe9a8,#ffc8dd","#c8f7ff,#d9d2ff","#d6ffd8,#fff3b0","#ffd6a5,#ffadad","#cdeffd,#b8f2e6","#e4d1ff,#ffd6f5"];
-const SC = {
-  "KG3:0":["☀️","🐱","🎩","🧶"], "KG3:1":["🐶","🦴","🌳","⚽"],
-  "G1:0":["👦","🐔","🌾","🏡"],  "G1:1":["⛵","🐟","🌊","🏖️"],
-  "G2:0":["🪁","👦","⛰️","💨"],  "G2:1":["🐸","🪰","🪷","☀️"],
-  "G3:0":["🌧️","👧","🍪","📖"], "G3:1":["🌱","🪴","🌻","💧"],
-  "G4:0":["🦉","🌙","🐭","🌲"],  "G4:1":["👩‍🌾","🥕","🌽","🐦"],
-  "G5:0":["🦜","🪟","👧","🌰"],  "G5:1":["🌋","👦","🏅","🧪"],
-  "G6:0":["🦊","🏜️","🌙","🦗"], "G6:1":["⚽","🧒","🥅","🏆"]
-};
-const CSC = { KG3:["🐠","🫧","❤️"], G1:["🎩","🐕","☀️"], G2:["🚲","⛑️","🌳"], G3:["🐐","⛵","🧥"], G4:["🐪","🏜️","🌴"], G5:["♻️","🧴","🌍"], G6:["💧","🚰","🌊"] };
-const AR_SC = [["🧒","✏️","🌱","🚪"],["👦","🐎","🥛","😊"],["😴","🛏️","🍽️","👩"],["👦","🌳","🏠","📖"],["👧","🐱","🥛","🏫"],["🏖️","🐠","☀️","🏰"]];
-const AR_IC = ["🔤","✨","🎈","⭐","🌟","☀️"];
-const enSc = (l,i) => SC[l+":"+i] || ["📖","⭐"];
+const scOf = x => (x && x.sc) || ["📖","⭐"];
 const lvlIdx = l => Math.max(0, GRADES.findIndex(g => g.id === l));
 function scene(e, k, mini){
   const bg = BGS[k % BGS.length], list = mini ? e.slice(0,2) : e;
@@ -697,7 +850,7 @@ const CHEERS = [["أحسنت يا بطل! 🦸","Super star!"],["رائع جدً
 const MASCOT = [
   "يلا نقرأ قصة اليوم! 📖<br><small>Let's read a story today!</small>",
   "كل كلمة تقرأها تخليك أقوى 💪<br><small>Every word makes you stronger!</small>",
-  "سجّل صوتك واسمع نفسك 🎙️<br><small>Record and listen to yourself!</small>",
+  "خلّص المستوى عشان يفتح لك اللي بعده 🔓<br><small>Finish a level to unlock the next!</small>",
   "اجمع النجوم وكن بطل القراءة ⭐<br><small>Collect stars, be a reading hero!</small>",
   "أنا فخور فيك! 🦉<br><small>I'm proud of you!</small>"
 ];
@@ -708,6 +861,13 @@ function cheer(pts){
   c.classList.remove("show"); void c.offsetWidth; c.classList.add("show");
   clearTimeout(c._h); c._h = setTimeout(() => c.classList.remove("show"), 2200);
   if(pts >= 5) confetti();
+}
+function unlockCheer(){
+  const c = $("#cheer");
+  c.innerHTML = '<span class="cm">🔓</span><div><b>انفتح لك مستوى جديد! 🎉</b><small class="en">New level unlocked!</small></div>';
+  c.classList.remove("show"); void c.offsetWidth; c.classList.add("show");
+  clearTimeout(c._h); c._h = setTimeout(() => c.classList.remove("show"), 3000);
+  confetti();
 }
 function confetti(){
   const d = document.createElement("div"); d.className = "confetti";
@@ -733,8 +893,8 @@ function buildBg(){
    ========================================================= */
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let S = { view:"login", grade:null, stu:null, pin:"", user:null, lvl:"KG3", tab:"stories", item:0, rate:0.9,
-          ans:{}, checked:false, wi:0, tries:0, listened:false, arStage:0, modal:null, admin:false, recBase:"" };
+let S = { view:"login", grade:null, sec:null, stu:null, pin:"", user:null, lvl:"KG3", tab:"stories", item:0, rate:0.9,
+          ans:{}, checked:false, wi:0, wl:0, tries:0, listened:false, arStage:0, modal:null, admin:false, recBase:"" };
 let P = { points:0, done:{} };
 const mem = {};
 
@@ -743,12 +903,47 @@ function save(){ mem[S.user.id] = P; try{ localStorage.setItem("rh_"+S.user.id, 
 const isDone = k => !!P.done[k];
 function award(k, pts){
   if(P.done[k]) return false;
+  const before = doneLevels();
   P.done[k] = 1; P.points += pts; save();
   cheer(pts); renderTop();
   const p = $(".pts"); if(p){ p.classList.add("bump"); }
+  if(doneLevels() > before) setTimeout(unlockCheer, 2300);
   return true;
 }
 function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1800); }
+
+/* =========================================================
+   🔓 المستويات — المستوى الأول مفتوح، وكل مستوى يفتح اللي بعده
+   القصة تخلص بالاستماع لها · القطعة تخلص لما كل الإجابات صح
+   الكلمة تخلص لما الطالب يقرأها · العربي: كل الكلمات + قرأت القصة
+   ========================================================= */
+function chunk(a, n){ const r = []; for(let i=0;i<a.length;i+=n) r.push(a.slice(i,i+n).map((x,j) => ({ x, i:i+j }))); return r; }
+const enLevels = tab => chunk(EN[S.lvl][tab], PER[tab]);
+const wKey = (w, tab) => "w:" + S.lvl + ":" + (tab || S.tab) + ":" + w;
+function itemDone(tab, e){
+  if(tab === "stories") return isDone("st:"+S.lvl+":"+e.i+":listen");
+  if(tab === "comp") return e.x.q.every((q,qi) => isDone("cp:"+S.lvl+":"+e.i+":"+qi));
+  return isDone(wKey(e.x, tab));
+}
+const levelDone = (tab, L) => enLevels(tab)[L].every(e => itemDone(tab, e));
+const levelOpen = (tab, L) => L === 0 || levelDone(tab, L-1);
+const arUnits = () => (AR[S.lvl] || AR.KG3).units;
+const arWKey = (u, j) => "aw:"+u.id+":"+j;
+const arUnitDone = u => u.words.every((w,j) => isDone(arWKey(u,j))) && isDone("as:"+u.id+":read");
+const arOpen = i => i === 0 || arUnitDone(arUnits()[i-1]);
+function doneLevels(){
+  if(!S.user) return 0; let n = 0;
+  ["stories","comp","sight","hfw"].forEach(t => enLevels(t).forEach((_,L) => { if(levelDone(t,L)) n++; }));
+  arUnits().forEach(u => { if(arUnitDone(u)) n++; });
+  return n;
+}
+function lvHead(L, open, done, n, tot, ar){
+  const lbl = ar ? 'المستوى '+(L+1) : 'Level '+(L+1)+' · <bdi dir="rtl">المستوى '+(L+1)+'</bdi>';
+  const sub = open ? (done ? (ar?"تم ✅":"Done · <bdi>تم ✅</bdi>") : n+' / '+tot) : (ar ? 'خلّص المستوى '+L+' أولاً' : 'Finish Level '+L+' first · <bdi dir="rtl">خلّص المستوى '+L+' أولاً</bdi>');
+  return '<div class="lvh'+(open?"":" lock")+(done?" ok":"")+'"><span class="lvn">'+(done?"🏅":open?"🔓":"🔒")+'</span><div><b>'+lbl+'</b><small>'+sub+'</small>' +
+    (open ? '<div class="mini"><i style="width:'+Math.round(n/tot*100)+'%"></i></div>' : '') + '</div></div>';
+}
+function tabProgress(tab){ const lv = enLevels(tab); return lv.filter((_,L) => levelDone(tab,L)).length + '/' + lv.length; }
 
 /* =========================================================
    🔊 الصوت الإنجليزي (قراءة آلية)
@@ -872,13 +1067,14 @@ const HOMO = { to:["two","too","2"], two:["to","too","2"], too:["to","two"], for
   eight:["ate","8"], i:["eye","aye","hi"], see:["sea","c"], be:["bee","b"], by:["buy","bye"], buy:["by","bye"], right:["write","rite"],
   write:["right","rite"], there:["their","they're"], their:["there","they're"], know:["no"], no:["know"], new:["knew"], knew:["new"],
   here:["hear"], hear:["here"], a:["uh","ah","eh","hey","8"], our:["hour","are"], are:["our","r"], you:["u"], your:["you're"],
-  which:["witch"], some:["sum"], red:["read"], first:["1st"], its:["it's"], dad:["that","dead"], am:["m","em"], an:["and","in"],
+  which:["witch"], some:["sum"], red:["read"], read:["red","reed"], first:["1st"], its:["it's"], dad:["that","dead"], am:["m","em"], an:["and","in"],
   in:["inn","and"], up:["op"], at:["that"], hop:["hope","hap"], sit:["set"], yes:["yeah"], whether:["weather"], piece:["peace"],
-  told:["toll"], close:["clothes"], ever:["every"], sound:["sounds"], friends:["friend"] };
+  told:["toll"], close:["clothes"], ever:["every"], sound:["sounds"], friends:["friend"], me:["mi"], he:["hee"], seven:["7"],
+  sun:["son"], made:["maid"], ate:["eight"], fact:["facts"], main:["maine","mane"], eyes:["is","ice"], face:["faith"], wait:["weight"],
+  road:["rode","rowed"], ride:["right"], line:["lion"], sure:["shore"], course:["coarse"], ought:["aught"], theme:["seem"] };
 const norm = s => s.toLowerCase().replace(/[’`]/g,"'").replace(/[^a-z0-9' ]/g," ").replace(/\s+/g," ").trim();
 let srObj = null;
-function curWords(){ return EN[S.lvl][S.tab]; }
-const wKey = w => "w:" + S.lvl + ":" + S.tab + ":" + w;
+function curWords(){ return (enLevels(S.tab)[S.wl] || []).map(e => e.x); }
 function readWord(){
   const w = curWords()[S.wi];
   if(!SR){ selfCheck(); return; }
@@ -925,11 +1121,11 @@ function wordSuccess(){
 /* =========================================================
    🪟 نافذة الكلمات
    ========================================================= */
-function openWord(i){ S.wi = i; S.tries = 0; S.modal = "en"; showModal(); }
+function openWord(L, i){ if(!levelOpen(S.tab, L)) return; S.wl = L; S.wi = i; S.tries = 0; S.modal = "en"; showModal(); }
 function openArWord(i){ S.wi = i; S.modal = "ar"; showModal(); }
 function closeModal(){ stopSR(); S.modal = null; $("#modal").innerHTML = ""; }
 function stepWord(d){
-  const n = S.modal === "ar" ? AR[S.arStage].words.length : curWords().length;
+  const n = S.modal === "ar" ? arUnits()[S.arStage].words.length : curWords().length;
   S.wi = Math.max(0, Math.min(n-1, S.wi + d)); S.tries = 0; stopSR(); showModal();
 }
 function speakCur(){ speak(curWords()[S.wi], { rate:0.75 }); }
@@ -938,13 +1134,13 @@ function showModal(){
   if(S.modal === "en"){
     const list = curWords(), w = list[S.wi], d = isDone(wKey(w));
     h = '<div class="mcard en" dir="ltr"><button class="x" onclick="closeModal()">✕</button>' +
-      '<div class="mcount">'+(S.wi+1)+' / '+list.length+'</div>' +
+      '<div class="mcount">Level '+(S.wl+1)+' · '+(S.wi+1)+' / '+list.length+'</div>' +
       '<div class="bigword '+(d?"done":"")+'">'+esc(w)+'</div>' +
       '<div class="mrow"><button class="btn soft" onclick="speakCur()">🔊 Listen · استمع</button><button class="btn rec" id="micbtn" onclick="readWord()">🎤 Read it · اقرأ</button></div>' +
       '<div id="wres" class="wres">'+(d?'<span class="good">✅ Great job!</span>':'<span class="mu">+2 ⭐</span>')+'</div>' +
       '<div class="mnav"><button class="btn ghost" onclick="stepWord(-1)">⟵ Back</button><button class="btn ghost" onclick="stepWord(1)">Next ⟶</button></div></div>';
   } else {
-    const list = AR[S.arStage].words, w = list[S.wi], d = isDone("aw:"+S.arStage+":"+S.wi);
+    const u = arUnits()[S.arStage], list = u.words, w = list[S.wi], d = isDone(arWKey(u, S.wi));
     h = '<div class="mcard"><button class="x" onclick="closeModal()">✕</button>' +
       '<div class="mcount">'+(S.wi+1)+' / '+list.length+'</div>' +
       '<div class="bigword ar-t '+(d?"done":"")+'">'+esc(w)+'</div>' +
@@ -955,8 +1151,9 @@ function showModal(){
   $("#modal").innerHTML = '<div class="mbg" onclick="if(event.target===this)closeModal()">'+h+'</div>';
 }
 function arWordOk(){
-  award("aw:"+S.arStage+":"+S.wi, 1); render();
-  if(S.wi < AR[S.arStage].words.length - 1) stepWord(1); else showModal();
+  const u = arUnits()[S.arStage];
+  award(arWKey(u, S.wi), 1); render();
+  if(S.wi < u.words.length - 1) stepWord(1); else showModal();
 }
 
 /* =========================================================
@@ -968,6 +1165,7 @@ const back = js => '<button class="back" onclick="'+js+'">→ رجوع</button>'
 
 function render(){
   if(!S.user && !["login","admin"].includes(S.view)) S.view = "login";
+  if(S.user) S.lvl = S.user.grade;   // الطالب يشوف محتوى صفه فقط
   renderTop();
   const v = { login:vLogin, home:vHome, en:vEn, story:vStory, comp:vComp, ar:vAr, arstage:vArStage, arstory:vArStory, admin:vAdmin }[S.view] || vLogin;
   $("#app").innerHTML = v();
@@ -981,12 +1179,12 @@ function renderTop(){
     '<div class="pts">⭐ <b>'+P.points+'</b></div><button class="ic" onclick="logout()" title="خروج">🚪</button></div>';
 }
 
-/* ---------- تسجيل الدخول ---------- */
+/* ---------- تسجيل الدخول: الصف ← الفصل ← الاسم (بدون رقم سري) ---------- */
 function vLogin(){
   if(!S.grade){
     return '<div class="hero">'+'<div class="lg-full"><img src="'+SETTINGS.logoFull+'" alt="مدارس العناية ثنائية اللغة"></div><h1>'+esc(SETTINGS.platformName)+'</h1><h2 class="en">Laban Branch</h2><div class="tagline">'+esc(SETTINGS.tagline)+'</div><div class="friends"><span>🦉</span><span>📚</span><span>🐻</span><span>🎈</span></div></div>' +
       '<h2 class="ttl">اختر صفك · <span class="en">Choose your class</span></h2>' +
-      '<div class="grid2">'+GRADES.map(g => '<button class="tile" style="--c:'+g.c+'" onclick="go(\'login\',{grade:\''+g.id+'\'})"><b class="en">'+g.en+'</b><span>'+g.ar+'</span></button>').join("")+'</div>' +
+      '<div class="grid2">'+GRADES.map(g => '<button class="tile" style="--c:'+g.c+'" onclick="go(\'login\',{grade:\''+g.id+'\',sec:null,stu:null})"><b class="en">'+g.en+'</b><span>'+g.ar+'</span></button>').join("")+'</div>' +
       '<div class="center"><button class="link" onclick="adminLogin()">👩‍🏫 دخول المعلمة</button></div>';
   }
   const secs = [...new Set(STUDENTS.filter(s => s.grade === S.grade && s.sec).map(s => s.sec))];
@@ -999,7 +1197,7 @@ function vLogin(){
   if(!S.stu){
     const list = STUDENTS.filter(s => s.grade === S.grade && (!S.sec || s.sec === S.sec));
     return back(secs.length ? "go('login',{sec:null})" : "go('login',{grade:null})") + '<h2 class="ttl">مين أنت؟ · <span class="en">Who are you?</span></h2>' +
-      (list.length ? '<div class="grid2">'+list.map(s => '<button class="tile name" onclick="go(\'login\',{stu:\''+s.id+'\',pin:\'\'})">'+avatar(s)+'<span>'+esc(s.name)+'</span><small class="en enn">'+esc(s.en||"")+'</small></button>').join("")+'</div>'
+      (list.length ? '<div class="grid2">'+list.map(s => '<button class="tile name" onclick="loginAs(\''+s.id+'\')">'+avatar(s)+'<span>'+esc(s.name)+'</span><small class="en enn">'+esc(s.en||"")+'</small></button>').join("")+'</div>'
                    : '<p class="empty">لا يوجد طلاب في هذا الصف بعد</p>');
   }
   const s = STUDENTS.find(x => x.id === S.stu);
@@ -1015,66 +1213,78 @@ function pinKey(k){
   render();
   if(S.pin.length === 4) setTimeout(checkPin, 150);
 }
+function loginAs(id){
+  const s = STUDENTS.find(x => x.id === id); if(!s) return;
+  S.user = s; P = load(s.id);
+  go("home", { lvl:s.grade, grade:null, sec:null, stu:null, pin:"" });
+}
 function checkPin(){
   const s = STUDENTS.find(x => x.id === S.stu);
-  if(s && S.pin === String(s.pin)){
+  if(s && S.pin === String(SETTINGS.studentPin)){
     S.user = s; P = load(s.id);
-    try{ localStorage.setItem("rh_last", s.id); }catch(e){}
     go("home", { lvl:s.grade, grade:null, sec:null, stu:null, pin:"" });
   } else {
     S.pin = ""; render(); const d = $("#dots"); if(d) d.classList.add("shake");
     toast("الرقم غلط، حاول مرة ثانية");
   }
 }
-function logout(){ cleanup(); S.user = null; try{ localStorage.removeItem("rh_last"); }catch(e){} go("login", { grade:null, sec:null, stu:null, pin:"" }); }
+function logout(){ cleanup(); S.user = null; P = { points:0, done:{} }; try{ localStorage.removeItem("rh_last"); }catch(e){} go("login", { grade:null, sec:null, stu:null, pin:"" }); }
 
 /* ---------- الصفحة الرئيسية ---------- */
 function vHome(){
-  const u = S.user, g = GR[u.grade];
+  const u = S.user, g = GR[u.grade], A = AR[u.grade];
   const b = BADGES.filter(x => P.points >= x.min).pop(), nb = BADGES.find(x => x.min > P.points);
   const pct = nb ? Math.round((P.points - b.min) / (nb.min - b.min) * 100) : 100;
-  const btn = (tab, ic, en, ar) => '<button onclick="go(\'en\',{lvl:\''+u.grade+'\',tab:\''+tab+'\'})"><span>'+ic+'</span><b>'+en+'</b><small>'+ar+'</small></button>';
+  const btn = (tab, ic, en, ar) => '<button onclick="go(\'en\',{tab:\''+tab+'\'})"><span>'+ic+'</span><b>'+en+'</b><small>'+ar+' · '+tabProgress(tab)+' 🏅</small></button>';
   const first = (u.en||"").split(" ")[0];
+  const arDone = arUnits().filter(arUnitDone).length;
   return '<div class="hello"><div><h1 class="rainbow">أهلاً '+esc(u.name.split(" ")[0])+' 👋</h1><p class="en hi-en" dir="ltr">Hello, '+esc(first)+'! 🌟</p><p>يلا نقرأ اليوم! · <span class="en">Let\'s read today!</span></p></div>' +
     '<div class="badge"><span>'+b.ic+'</span><b>'+b.ar+'</b><small class="en">'+b.en+'</small></div></div>' +
     '<div class="prog"><div class="bar"><i style="width:'+pct+'%"></i></div><small>'+(nb ? 'باقي '+(nb.min-P.points)+' نقطة للوصول إلى '+nb.ic+' '+nb.ar : 'وصلت لأعلى مستوى! 👑')+'</small></div>' +
     '<div class="mascot" onclick="newCheer()"><span class="owl">🦉</span><div class="bubble pop" id="bubble">'+pickR(MASCOT)+'</div></div>' +
-    '<div class="worlds"><div class="world en-w en" dir="ltr"><div class="wh"><span class="flag">🇬🇧</span><div><h2>English World</h2><p>Your level: '+g.en+'</p></div></div><div class="wbtns">' +
+    '<div class="worlds"><div class="world en-w en" dir="ltr"><div class="wh"><span class="flag">🇬🇧</span><div><h2>English World</h2><p>'+g.en+' · '+esc(EN[u.grade].focus)+'</p></div></div><div class="wbtns">' +
       btn("stories","📚","Stories","قصص") + btn("comp","📝","Reading","قراءة وفهم") + btn("sight","👀","Sight Words","الكلمات البصرية") + btn("hfw","⚡","HF Words","الكلمات الشائعة") +
     '</div></div>' +
-    '<div class="world ar-w"><div class="wh"><span class="flag">📗</span><div><h2>العالم العربي</h2><p>كلمات وقصص قصيرة على طريقة نور البيان</p></div></div>' +
+    '<div class="world ar-w"><div class="wh"><span class="flag">📗</span><div><h2>العالم العربي</h2><p>'+A.title+' · '+A.sub+'</p></div></div>' +
+    '<p style="margin:0 0 10px;font-weight:700">🏅 '+arDone+' / '+arUnits().length+' مستويات</p>' +
     '<button class="btn wide" onclick="go(\'ar\')">ابدأ القراءة بالعربي ←</button></div></div>';
 }
 
-/* ---------- العالم الإنجليزي ---------- */
+/* ---------- العالم الإنجليزي (محتوى صف الطالب فقط) ---------- */
 function vEn(){
   const L = EN[S.lvl];
   const tabs = [["stories","📚","Stories"],["comp","📝","Reading"],["sight","👀","Sight Words"],["hfw","⚡","HF Words"]];
-  let body = "";
-  if(S.tab === "stories"){
-    body = L.stories.map((s,i) => { const k = "st:"+S.lvl+":"+i;
-      return '<button class="item" onclick="go(\'story\',{item:'+i+',listened:false})">'+scene(enSc(S.lvl,i), lvlIdx(S.lvl)*2+i, true)+'<div><b>'+esc(s.t)+'</b><small>'+s.text.length+' sentences · Listen & Record</small></div><span class="st">'+(isDone(k+":listen")?"🎧":"")+(isDone(k+":rec")?"🎙️":"")+'</span></button>'; }).join("");
-  } else if(S.tab === "comp"){
-    body = L.comp.map((c,i) => { const n = c.q.filter((q,qi) => isDone("cp:"+S.lvl+":"+i+":"+qi)).length;
-      return '<button class="item" onclick="go(\'comp\',{item:'+i+',ans:{},checked:false})">'+scene(CSC[S.lvl], lvlIdx(S.lvl)+3, true)+'<div><b>'+esc(c.t)+'</b><small>'+c.q.length+' questions · Read & Answer</small></div><span class="st">'+n+'/'+c.q.length+'</span></button>'; }).join("");
-  } else {
-    const list = L[S.tab], n = list.filter(w => isDone(wKey(w))).length;
-    body = '<p class="mu">⭐ '+n+' / '+list.length+' · Tap a word to practice · اضغط على الكلمة للتدريب</p>' +
-      '<div class="wgrid">'+list.map((w,i) => '<button class="wc '+(isDone(wKey(w))?"done":"")+'" onclick="openWord('+i+')">'+esc(w)+'</button>').join("")+'</div>';
-  }
-  return back("go('home')") + '<div dir="ltr" class="en"><h1 class="pt">🇬🇧 English World</h1>' +
-    '<div class="chips">'+GRADES.map(g => '<button class="chip '+(g.id===S.lvl?"on":"")+'" onclick="go(\'en\',{lvl:\''+g.id+'\'})">'+g.en+(g.id===S.user.grade?" ⭐":"")+'</button>').join("")+'</div>' +
+  const levels = enLevels(S.tab);
+  const body = levels.map((lv, Li) => {
+    const open = levelOpen(S.tab, Li), done = levelDone(S.tab, Li), n = lv.filter(e => itemDone(S.tab, e)).length;
+    let inner = "";
+    if(open){
+      if(S.tab === "stories"){
+        inner = lv.map(e => { const s = e.x, k = "st:"+S.lvl+":"+e.i;
+          return '<button class="item" onclick="go(\'story\',{item:'+e.i+',listened:false})">'+scene(scOf(s), lvlIdx(S.lvl)*2+e.i, true)+'<div><b>'+esc(s.t)+'</b><small>'+s.text.length+' sentences · Listen & Record</small></div><span class="st">'+(isDone(k+":listen")?"🎧":"")+(isDone(k+":rec")?"🎙️":"")+'</span></button>'; }).join("");
+      } else if(S.tab === "comp"){
+        inner = lv.map(e => { const c = e.x, m = c.q.filter((q,qi) => isDone("cp:"+S.lvl+":"+e.i+":"+qi)).length;
+          return '<button class="item" onclick="go(\'comp\',{item:'+e.i+',ans:{},checked:false})">'+scene(scOf(c), lvlIdx(S.lvl)+3+e.i, true)+'<div><b>'+esc(c.t)+'</b><small>'+c.q.length+' questions · Read & Answer</small></div><span class="st">'+m+'/'+c.q.length+'</span></button>'; }).join("");
+      } else {
+        inner = '<div class="wgrid">'+lv.map((e,j) => '<button class="wc '+(isDone(wKey(e.x))?"done":"")+'" onclick="openWord('+Li+','+j+')">'+esc(e.x)+'</button>').join("")+'</div>';
+      }
+    }
+    return '<section class="lvbox">'+lvHead(Li, open, done, n, lv.length)+(open ? '<div class="list">'+inner+'</div>' : '')+'</section>';
+  }).join("");
+  return back("go('home')") + '<div dir="ltr" class="en"><h1 class="pt">🇬🇧 English World · '+GR[S.lvl].en+'</h1>' +
     '<p class="focus">🔤 Phonics focus: '+esc(L.focus)+'</p>' +
     '<div class="tabs">'+tabs.map(t => '<button class="tab '+(S.tab===t[0]?"on":"")+'" onclick="go(\'en\',{tab:\''+t[0]+'\'})"><span class="ti">'+t[1]+'</span>'+t[2]+'</button>').join("")+'</div>' +
-    '<div class="list">'+body+'</div></div>';
+    (S.tab === "sight" || S.tab === "hfw" ? '<p class="mu">Tap a word to practice · اضغط على الكلمة للتدريب</p>' : '') +
+    body + '</div>';
 }
 
 function vStory(){
   const L = EN[S.lvl], st = L.stories[S.item], k = "st:"+S.lvl+":"+S.item;
   S.recBase = k;
   const lis = S.listened || isDone(k+":listen");
-  return back("go('en',{tab:'stories'})") + '<div dir="ltr" class="en"><h1 class="stt">📚 '+esc(st.t)+'</h1><p class="focus">🔤 '+esc(L.focus)+'</p>' +
-    scene(enSc(S.lvl,S.item), lvlIdx(S.lvl)*2+S.item) + '<div class="steps"><div class="stp '+(lis?"ok":"")+'">1️⃣ Listen<br><small>اسمع</small></div><div class="stp '+(isDone(k+":rec")?"ok":"")+'">2️⃣ Record<br><small>سجّل</small></div></div>' +
+  const lv = Math.floor(S.item / PER.stories) + 1;
+  return back("go('en',{tab:'stories'})") + '<div dir="ltr" class="en"><h1 class="stt">📚 '+esc(st.t)+'</h1><p class="focus">🔤 Level '+lv+' · '+esc(L.focus)+'</p>' +
+    scene(scOf(st), lvlIdx(S.lvl)*2+S.item) + '<div class="steps"><div class="stp '+(lis?"ok":"")+'">1️⃣ Listen<br><small>اسمع</small></div><div class="stp '+(isDone(k+":rec")?"ok":"")+'">2️⃣ Record<br><small>سجّل</small></div></div>' +
     '<div class="ctrl"><button id="playbtn" class="btn pri" onclick="playStory()">▶ Listen · استمع</button><button id="ratebtn" class="btn soft" onclick="toggleRate()">'+rateLbl()+'</button></div>' +
     '<div class="reader" id="rd">'+renderSentences(st.text,"rd")+'</div>' +
     '<p class="hint">💡 Tap any word to hear it · اضغط على أي كلمة لتسمعها</p>' +
@@ -1088,7 +1298,7 @@ function playStory(){
 function vComp(){
   const c = EN[S.lvl].comp[S.item];
   return back("go('en',{tab:'comp'})") + '<div dir="ltr" class="en"><h1 class="stt">📝 '+esc(c.t)+'</h1>' +
-    scene(CSC[S.lvl], lvlIdx(S.lvl)+3) + '<div class="ctrl"><button id="playbtn" class="btn pri" onclick="playComp()">▶ Listen · استمع</button><button id="ratebtn" class="btn soft" onclick="toggleRate()">'+rateLbl()+'</button></div>' +
+    scene(scOf(c), lvlIdx(S.lvl)+3+S.item) + '<div class="ctrl"><button id="playbtn" class="btn pri" onclick="playComp()">▶ Listen · استمع</button><button id="ratebtn" class="btn soft" onclick="toggleRate()">'+rateLbl()+'</button></div>' +
     '<div class="reader sm" id="rd">'+renderSentences(splitS(c.text),"rd")+'</div>' +
     '<h2 class="qh">❓ Questions · الأسئلة</h2><div id="qs">'+qsHtml()+'</div></div>';
 }
@@ -1107,7 +1317,9 @@ function qsHtml(){
       return '<button class="opt '+cls+'" onclick="pick('+qi+','+oi+')">'+esc(o)+'</button>';
     }).join("")+'</div></div>';
   }).join("");
-  const res = S.checked ? '<div class="res">'+(right === c.q.length ? "🎉 Amazing! " : "💪 ")+right+' / '+c.q.length+'</div>' : "";
+  const all = c.q.every((q,qi) => isDone("cp:"+S.lvl+":"+S.item+":"+qi));
+  const res = S.checked ? '<div class="res">'+(right === c.q.length ? "🎉 Amazing! " : "💪 ")+right+' / '+c.q.length+
+    (right < c.q.length ? '<br><small class="mu">صحّح الإجابات الغلط عشان يخلص المستوى</small>' : '')+'</div>' : (all ? '<div class="res">✅ Done · تم</div>' : "");
   return qs + res + '<div class="center" style="margin-top:8px"><button class="btn pri" onclick="checkComp()">✓ Check · تحقق</button></div>';
 }
 function pick(qi, oi){ S.ans[qi] = oi; S.checked = false; $("#qs").innerHTML = qsHtml(); }
@@ -1119,30 +1331,34 @@ function checkComp(){
   $("#qs").innerHTML = qsHtml();
 }
 
-/* ---------- العالم العربي ---------- */
+/* ---------- العالم العربي (مستويات صف الطالب فقط) ---------- */
 function vAr(){
-  return back("go('home')") + '<h1 class="pt" style="color:#0f8f7e">📗 العالم العربي</h1><p class="mu">اقرأ الكلمات ثم القصة، وسجّل قراءتك 🎙️</p><div class="list">' +
-    AR.map((s,i) => {
-      const n = s.words.filter((w,j) => isDone("aw:"+i+":"+j)).length;
-      return '<button class="stage" onclick="go(\'arstage\',{arStage:'+i+'})"><span class="snum big">'+AR_IC[i]+'</span><div><b>المرحلة '+(i+1)+': '+s.t+'</b><small>'+s.note+' · '+n+'/'+s.words.length+' كلمة</small><div class="mini"><i style="width:'+Math.round(n/s.words.length*100)+'%"></i></div></div><span class="ex">'+s.words[0]+'</span>'+(isDone("as:"+i+":read")?"✅":"")+'</button>';
+  const A = AR[S.lvl], us = arUnits();
+  return back("go('home')") + '<h1 class="pt" style="color:#0f8f7e">📗 العالم العربي · '+A.title+'</h1><p class="mu">اقرأ الكلمات ثم القصة — خلّص المستوى عشان يفتح لك اللي بعده 🔓</p><div class="list">' +
+    us.map((s,i) => {
+      const open = arOpen(i), done = arUnitDone(s);
+      const n = s.words.filter((w,j) => isDone(arWKey(s,j))).length + (isDone("as:"+s.id+":read") ? 1 : 0), tot = s.words.length + 1;
+      if(!open) return '<div class="stage lockd"><span class="snum big">🔒</span><div><b>المستوى '+(i+1)+': '+s.t+'</b><small>خلّص المستوى '+i+' أولاً</small></div></div>';
+      return '<button class="stage" onclick="go(\'arstage\',{arStage:'+i+'})"><span class="snum big">'+(done?"🏅":s.ic)+'</span><div><b>المستوى '+(i+1)+': '+s.t+'</b><small>'+s.note+' · '+n+'/'+tot+'</small><div class="mini"><i style="width:'+Math.round(n/tot*100)+'%"></i></div></div><span class="ex">'+s.words[0]+'</span></button>';
     }).join("") + '</div>';
 }
 function vArStage(){
-  const s = AR[S.arStage];
-  return back("go('ar')") + '<h1 class="pt" style="color:#0f8f7e">المرحلة '+(S.arStage+1)+': '+s.t+'</h1>' +
+  const s = arUnits()[S.arStage];
+  if(!arOpen(S.arStage)) return vAr();
+  return back("go('ar')") + '<h1 class="pt" style="color:#0f8f7e">المستوى '+(S.arStage+1)+': '+s.t+'</h1>' +
     '<h2 class="sec">🔤 الكلمات <small class="mu">— اضغط على الكلمة واقرأها</small></h2>' +
-    '<div class="wgrid ar">'+s.words.map((w,j) => '<button class="wc '+(isDone("aw:"+S.arStage+":"+j)?"done":"")+'" onclick="openArWord('+j+')">'+w+'</button>').join("")+'</div>' +
-    '<h2 class="sec">📖 القصة</h2><button class="stage" onclick="go(\'arstory\')">'+scene(AR_SC[S.arStage], S.arStage+1, true)+'<div><b class="ar-t">'+s.story.t+'</b><small>اقرأ القصة وسجّل صوتك</small></div>'+(isDone("as:"+S.arStage+":read")?"✅":"")+(isDone("as:"+S.arStage+":rec")?"🎙️":"")+'</button>';
+    '<div class="wgrid ar">'+s.words.map((w,j) => '<button class="wc '+(isDone(arWKey(s,j))?"done":"")+'" onclick="openArWord('+j+')">'+w+'</button>').join("")+'</div>' +
+    '<h2 class="sec">📖 القصة</h2><button class="stage" onclick="go(\'arstory\')">'+scene(scOf(s), S.arStage+1, true)+'<div><b class="ar-t">'+s.story.t+'</b><small>اقرأ القصة وسجّل صوتك</small></div>'+(isDone("as:"+s.id+":read")?"✅":"")+(isDone("as:"+s.id+":rec")?"🎙️":"")+'</button>';
 }
 function vArStory(){
-  const s = AR[S.arStage]; S.recBase = "as:"+S.arStage;
-  const d = isDone("as:"+S.arStage+":read");
+  const s = arUnits()[S.arStage]; S.recBase = "as:"+s.id;
+  const d = isDone("as:"+s.id+":read");
   return back("go('arstage')") + '<h1 class="pt ar-t" style="color:#0f8f7e">📖 '+s.story.t+'</h1>' +
-    scene(AR_SC[S.arStage], S.arStage+1) + '<div class="arread">'+s.story.text.map(l => '<p>'+l+'</p>').join("")+'</div>' +
+    scene(scOf(s), S.arStage+1) + '<div class="arread">'+s.story.text.map(l => '<p>'+l+'</p>').join("")+'</div>' +
     '<div class="center" style="margin-top:14px"><button class="btn ok" onclick="arRead()">'+(d?"✅ قرأت القصة":"✓ قرأت القصة (+5 ⭐)")+'</button></div>' +
     '<div id="recbox"></div>';
 }
-function arRead(){ if(award("as:"+S.arStage+":read", 5) && !(rec.mr && rec.mr.state === "recording")) render(); }
+function arRead(){ const s = arUnits()[S.arStage]; if(award("as:"+s.id+":read", 5) && !(rec.mr && rec.mr.state === "recording")) render(); }
 
 /* ---------- لوحة المعلمة ---------- */
 function adminLogin(){
@@ -1152,21 +1368,17 @@ function adminLogin(){
 function vAdmin(){
   if(!S.admin) return vLogin();
   return back("S.admin=false;go('login',{grade:null,sec:null,stu:null})") + '<h1 class="pt">👩‍🏫 لوحة المعلمة</h1>' +
-    '<div class="note">📌 النقاط والتسجيلات محفوظة على جهاز الطالب فقط.<br>لإضافة طلاب: عدّلي قائمة <b>STUDENTS</b> في أول ملف index.html (الاسم – الصف – الرقم السري)، ثم ارفعي الملف من جديد على Netlify.</div>' +
-    '<table><tr><th>الصف</th><th>القسم</th><th>الاسم</th><th>Name</th><th>الرقم السري</th><th>نقاط هذا الجهاز</th></tr>' +
-    STUDENTS.map(s => '<tr><td>'+GR[s.grade].ar+'</td><td>'+(SECS[s.sec] ? SECS[s.sec].ar : "-")+'</td><td>'+esc(s.name)+'</td><td dir="ltr" class="en">'+esc(s.en||"")+'</td><td dir="ltr">'+esc(s.pin)+'</td><td>⭐ '+load(s.id).points+'</td></tr>').join("") +
-    '</table><button class="btn pri" onclick="window.print()">🖨️ طباعة بيانات الدخول</button>';
+    '<div class="note">🔓 الطلاب يدخلوا من غير رقم سري: يختار الصف ثم اسمه فقط.<br>📌 النقاط والتسجيلات محفوظة على جهاز الطالب فقط.<br>📚 لإضافة قصص أو كلمات: أضيفيها في آخر قائمة الصف في EN أو AR، والمستويات تتقسم لوحدها.</div>' +
+    '<table><tr><th>الصف</th><th>القسم</th><th>الاسم</th><th>Name</th><th>نقاط هذا الجهاز</th></tr>' +
+    STUDENTS.map(s => '<tr><td>'+GR[s.grade].ar+'</td><td>'+(SECS[s.sec] ? SECS[s.sec].ar : "-")+'</td><td>'+esc(s.name)+'</td><td dir="ltr" class="en">'+esc(s.en||"")+'</td><td>⭐ '+load(s.id).points+'</td></tr>').join("") +
+    '</table><button class="btn pri" onclick="window.print()">🖨️ طباعة القائمة</button>';
 }
 
 /* ---------- البداية ---------- */
 buildBg();
 $("#foot").innerHTML = logo("lg-foot")+'<b>'+esc(SETTINGS.school)+'</b> · '+esc(SETTINGS.branch)+'<br><small dir="ltr">'+esc(SETTINGS.schoolEn)+' · © '+new Date().getFullYear()+'</small>';
-(function init(){
-  let last = null; try{ last = localStorage.getItem("rh_last"); }catch(e){}
-  const s = STUDENTS.find(x => x.id === last);
-  if(s){ S.user = s; P = load(s.id); S.lvl = s.grade; S.view = "home"; }
-  render();
-})();
+try{ localStorage.removeItem("rh_last"); }catch(e){}
+render();
 </script>
 </body>
 </html>
